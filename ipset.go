@@ -3,39 +3,123 @@
 package ipset
 
 import (
+	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
+	"sync"
 	"unsafe"
 )
 
 /*
 #cgo pkg-config: libipset
-
-#include <string.h>
 #include <stdlib.h>
-#include <libipset/data.h>
-#include <libipset/parse.h>
-#include <libipset/session.h>
-#include <libipset/types.h>
-
-// Returns the ipset_arg with the given name
-const struct ipset_arg*
-get_ipset_arg(struct ipset_type *type, const char *argname){
-  const struct ipset_arg *arg;
-
-  for (arg = type->args[IPSET_ADD]; arg->opt; arg++) {
-    if (strcmp(argname, arg->name[0]) == 0){
-      return arg;
-    }
-  }
-  return NULL;
-}
-
+#include "ipset.h"
 */
 import "C"
 
+// ListResult is the result of a LIST command
+type ListResult struct {
+	Sets []IPSet `xml:"ipset"`
+}
+
+// IPSet represents a returned ipset
+type IPSet struct {
+	Type     string   `xml:"type"`
+	Revision byte     `xml:"revision"`
+	Name     string   `xml:"name,attr"`
+	Header   Header   `xml:"header"`
+	Members  []Member `xml:"members>member"`
+}
+
+// Header is the header of an ipset result
+type Header struct {
+	Family     string `xml:"family"`
+	HashSize   int    `xml:"hashsize"`
+	MaxElem    int    `xml:"maxelem"`
+	Timeout    int    `xml:"timeout"`
+	MemSize    int    `xml:"memsize"`
+	References int    `xml:"references"`
+	NumEntries int    `xml:"numentries"`
+}
+
+// Member is the entry of an ipset
+type Member struct {
+	Elem    string `xml:"elem"`
+	Timeout int    `xml:"timeout"`
+}
+
+var (
+	xmlWriter *io.PipeWriter
+	listLock  sync.Mutex
+)
+
 func init() {
 	C.ipset_load_types()
+}
+
+//export outfn
+func outfn(buf *C.char) {
+	xmlWriter.Write([]byte(C.GoString(buf)))
+}
+
+// ListAll returns all ipsets
+func ListAll() ([]IPSet, error) {
+	return list("")
+}
+
+// List returns a single ipset
+func List(setname string) (*IPSet, error) {
+	list, err := list(setname)
+	if err != nil {
+		return nil, err
+	}
+	return &list[0], nil
+}
+
+func list(setname string) ([]IPSet, error) {
+	// Create session
+	session := C.session_init_xml()
+	if session == nil {
+		return nil, fmt.Errorf("failed to initialize ipset session")
+	}
+	defer C.ipset_session_fini(session)
+
+	listLock.Lock()
+	defer listLock.Unlock()
+
+	var reader *io.PipeReader
+	var result ListResult
+	var err error
+	var wg sync.WaitGroup
+	reader, xmlWriter = io.Pipe()
+
+	wg.Add(1)
+	go func() {
+		err = xml.NewDecoder(reader).Decode(&result)
+		wg.Done()
+	}()
+
+	if setname != "" {
+		cSetname := C.CString(setname)
+		defer C.free(unsafe.Pointer(cSetname))
+
+		// Set setname
+		if C.ipset_parse_setname(session, C.IPSET_SETNAME, cSetname) != 0 {
+			return nil, fmt.Errorf("failed to parse setname '%s'", setname)
+		}
+	}
+
+	// Finally execute the command
+	if retval := C.ipset_cmd(session, C.IPSET_CMD_LIST, 0); retval != 0 {
+		return nil, fmt.Errorf("ipset failed with %d", retval)
+	}
+
+	xmlWriter.Close()
+	xmlWriter = nil
+	wg.Wait()
+
+	return result.Sets, nil
 }
 
 // Add adds a new entry to an existing set

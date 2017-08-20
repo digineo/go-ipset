@@ -1,0 +1,15 @@
+<ipsets>
+<ipset name="clients">
+<type>hash:ip</type>
+<revision>4</revision>
+<header><family>inet</family><hashsize>1024</hashsize><maxelem>65536</maxelem><timeout>7200</timeout>
+<memsize>304</memsize>
+<references>1</references>
+<numentries>2</numentries>
+</header>
+<members>
+<member><elem>1.2.3.4</elem><timeout>23</timeout></member>
+<member><elem>192.168.0.1</elem><timeout>3600</timeout></member>
+</members>
+</ipset>
+</ipsets>

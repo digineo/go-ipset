@@ -1,7 +1,7 @@
 go-ipset
 ========
 
-These are bindings to `libipset3`. Currently there is only support for adding and removing entries to/from existing sets.
+These are bindings to `libipset3`. Currently there is only support for listing sets and adding/removing entries to/from existing sets.
 If you need a more feature-rich library then take a look at [janeczku/go-ipset](https://github.com/janeczku/go-ipset).
 
 ## Installation
@@ -26,6 +26,18 @@ Add the import to your program:
 
 ```go
 import "github.com/digineo/go-ipset"
+```
+
+### List all sets
+
+```go
+ipset.ListAll()
+```
+
+### List a single set
+
+```go
+ipset.List("myset")
 ```
 
 ### Add a single entry to the set
