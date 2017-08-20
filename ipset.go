@@ -37,10 +37,12 @@ func init() {
 	C.ipset_load_types()
 }
 
+// Add adds a new entry to an existing set
 func Add(setname, address string, args ...string) error {
 	return exec(C.IPSET_CMD_ADD, setname, address, args...)
 }
 
+// Del deletes an entry from an existing set
 func Del(setname, address string, args ...string) error {
 	return exec(C.IPSET_CMD_DEL, setname, address, args...)
 }
