@@ -1,4 +1,5 @@
-// apt install ipset-dev
+// Package ipset contains bindings to libipset
+// Requirements: apt install ipset-dev
 package ipset
 
 import (
@@ -52,10 +53,10 @@ func exec(cmd uint32, setname, address string, args ...string) error {
 		return fmt.Errorf("odd number of arguments given")
 	}
 
-	address_c := C.CString(address)
-	defer C.free(unsafe.Pointer(address_c))
-	setname_c := C.CString(setname)
-	defer C.free(unsafe.Pointer(setname_c))
+	cAddress := C.CString(address)
+	defer C.free(unsafe.Pointer(cAddress))
+	cSetname := C.CString(setname)
+	defer C.free(unsafe.Pointer(cSetname))
 
 	// Create session
 	session := C.ipset_session_init(nil)
@@ -68,7 +69,7 @@ func exec(cmd uint32, setname, address string, args ...string) error {
 	C.ipset_envopt_parse(session, C.IPSET_ENV_EXIST, nil)
 
 	// Set setname
-	if C.ipset_parse_setname(session, C.IPSET_SETNAME, setname_c) != 0 {
+	if C.ipset_parse_setname(session, C.IPSET_SETNAME, cSetname) != 0 {
 		return fmt.Errorf("failed to parse setname '%s'", setname)
 	}
 
@@ -76,23 +77,23 @@ func exec(cmd uint32, setname, address string, args ...string) error {
 	typ := C.ipset_type_get(session, cmd)
 	if typ == nil {
 		if os.Geteuid() != 0 {
-			return fmt.Errorf("failed to get type of cmd %d - not running as root!", cmd)
+			return fmt.Errorf("failed to get type of cmd %d - not running as root", cmd)
 		}
 		return fmt.Errorf("failed to get type of cmd %d", cmd)
 	}
-	C.ipset_parse_elem(session, typ.last_elem_optional, address_c)
+	C.ipset_parse_elem(session, typ.last_elem_optional, cAddress)
 
 	// Iterate over argument pairs
 	for i := 0; i < len(args); i += 2 {
 		key := args[i]
 		val := args[i+1]
-		key_c := C.CString(key)
-		val_c := C.CString(val)
-		defer C.free(unsafe.Pointer(key_c))
-		defer C.free(unsafe.Pointer(val_c))
+		cKey := C.CString(key)
+		cVal := C.CString(val)
+		defer C.free(unsafe.Pointer(cKey))
+		defer C.free(unsafe.Pointer(cVal))
 
-		if arg := C.get_ipset_arg(typ, key_c); arg != nil {
-			if retval := C.ipset_call_parser(session, arg, val_c); retval != 0 {
+		if arg := C.get_ipset_arg(typ, cKey); arg != nil {
+			if retval := C.ipset_call_parser(session, arg, cVal); retval != 0 {
 				return fmt.Errorf("failed to set %s=%s (%d)", key, val, retval)
 			}
 		} else {
