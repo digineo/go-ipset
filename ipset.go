@@ -132,6 +132,11 @@ func Del(setname, address string, args ...string) error {
 	return exec(C.IPSET_CMD_DEL, setname, address, args...)
 }
 
+// Test an entry from an existing set
+func Test(setname, address string, args ...string) error {
+        return exec(C.IPSET_CMD_TEST, setname, address, args...)
+}
+
 func exec(cmd uint32, setname, address string, args ...string) error {
 	if len(args)%2 != 0 {
 		return fmt.Errorf("odd number of arguments given")
