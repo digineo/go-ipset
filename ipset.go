@@ -134,13 +134,16 @@ func Del(setname, address string, args ...string) error {
 
 // Test an entry from an existing set
 func Test(setname, address string, args ...string) error {
-        return exec(C.IPSET_CMD_TEST, setname, address, args...)
+	return exec(C.IPSET_CMD_TEST, setname, address, args...)
 }
 
 func exec(cmd uint32, setname, address string, args ...string) error {
 	if len(args)%2 != 0 {
 		return fmt.Errorf("odd number of arguments given")
 	}
+
+	listLock.Lock()
+	defer listLock.Unlock()
 
 	cAddress := C.CString(address)
 	defer C.free(unsafe.Pointer(cAddress))
