@@ -169,9 +169,9 @@ func exec(cmd uint32, setname, address string, args ...string) error {
 	typ := C.ipset_type_get(session, cmd)
 	if typ == nil {
 		if os.Geteuid() != 0 {
-			return fmt.Errorf("failed to get type of cmd %d - not running as root", cmd)
+			return fmt.Errorf("failed to get type of cmd %d - ipset '%s' missing or not running as root?", cmd, setname)
 		}
-		return fmt.Errorf("failed to get type of cmd %d", cmd)
+		return fmt.Errorf("failed to get type of cmd %d - ipset '%s' missing?", cmd, setname)
 	}
 	C.ipset_parse_elem(session, typ.last_elem_optional, cAddress)
 
