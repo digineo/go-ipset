@@ -27,9 +27,13 @@ struct ipset_session *session_init_xml() {
 const struct ipset_arg*
 get_ipset_arg(struct ipset_type *type, const char *argname){
   const struct ipset_arg *arg;
+#ifdef IPSET_OPTARG_MAX
   int k;
   for (k = 0; type->cmd[IPSET_ADD].args[k] != IPSET_ARG_NONE; k++) {
     arg = ipset_keyword(type->cmd[IPSET_ADD].args[k]);
+#else
+  for (arg = type->args[IPSET_ADD]; arg->opt; arg++) {
+#endif
     if (strcmp(argname, arg->name[0]) == 0){
       return arg;
     }
