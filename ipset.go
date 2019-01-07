@@ -119,7 +119,7 @@ func list(setname string) ([]IPSet, error) {
 	xmlWriter = nil
 	wg.Wait()
 
-	return result.Sets, nil
+	return result.Sets, err
 }
 
 // Add adds a new entry to an existing set
