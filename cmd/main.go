@@ -3,13 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/ti-mo/conntrack"
+	"github.com/digineo/ipset"
 )
 
 func main() {
-	// Open a Conntrack connection.
-	_, err := conntrack.Dial(nil)
+	// Open an Ipset connection.
+	c, err := ipset.Dial(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Println(c.Protocol())
 }
