@@ -44,7 +44,7 @@ func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]*Set, 
 }
 
 func (c *Conn) Protocol() (*Set, error) {
-	s, err := c.query(CmdProtocol, netlink.Request|netlink.Acknowledge|netlink.Dump, NewSet())
+	s, err := c.query(CmdProtocol, netlink.Request|netlink.Acknowledge, NewSet())
 	if err != nil {
 		return nil, err
 	}
