@@ -1,8 +1,6 @@
 package ipset
 
 import (
-	"fmt"
-
 	"github.com/mdlayher/netlink"
 	"github.com/ti-mo/netfilter"
 )
@@ -24,24 +22,32 @@ func Dial(config *netlink.Config) (*Conn, error) {
 	return &Conn{c}, nil
 }
 
-func (c *Conn) Protocol() (uint8, error) {
+func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]*Set, error) {
 	req, err := netfilter.MarshalNetlink(
 		netfilter.Header{
 			SubsystemID: netfilter.NFSubsysIPSet,
-			MessageType: netfilter.MessageType(IPSetCmdProtocol),
-			Flags: netlink.Request | netlink.Acknowledge,
-		}, []netfilter.Attribute{})
-
+			MessageType: netfilter.MessageType(t),
+			Flags:       flags,
+		},
+		s.marshal(),
+	)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	nlm, err := c.Conn.Query(req)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	fmt.Println(nlm)
+	return unmarshalSets(nlm)
+}
 
-	return 0, nil
+func (c *Conn) Protocol() (*Set, error) {
+	s, err := c.query(CmdProtocol, netlink.Request|netlink.Acknowledge|netlink.Dump, NewSet())
+	if err != nil {
+		return nil, err
+	}
+
+	return s[0], nil
 }
