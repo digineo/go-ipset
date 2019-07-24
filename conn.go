@@ -44,7 +44,7 @@ func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]*Set, 
 }
 
 func (c *Conn) Protocol() (*Set, error) {
-	s, err := c.query(CmdProtocol, netlink.Request|netlink.Acknowledge, NewSet())
+	s, err := c.query(CmdProtocol, netlink.Request, NewSet())
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (c *Conn) Protocol() (*Set, error) {
 }
 
 func (c *Conn) Create(sname, stype string, revision, family int) error {
-	_, err := c.query(CmdCreate, netlink.Request|netlink.Acknowledge, NewSet(
+	_, err := c.query(CmdCreate, netlink.Request, NewSet(
 		SetName([]byte(sname)),
 		SetTypeName([]byte(stype)),
 		SetRevision(uint8(revision)),
