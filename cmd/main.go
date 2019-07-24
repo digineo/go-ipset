@@ -7,7 +7,7 @@ import (
 	"github.com/digineo/ipset"
 )
 
-func handlerErr(err error) {
+func handleErr(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -16,10 +16,17 @@ func handlerErr(err error) {
 
 func main() {
 	c, err := ipset.Dial(nil)
-	handlerErr(err)
+	handleErr(err)
 
 	s, err := c.Protocol()
-	handlerErr(err)
+	handleErr(err)
 
 	fmt.Printf("Protocol:%d Min:%d\n", s.Protocol.Get(), s.ProtocolMin.Get())
+
+	s, err = c.Protocol()
+	handleErr(err)
+
+	fmt.Printf("Protocol:%d Min:%d\n", s.Protocol.Get(), s.ProtocolMin.Get())
+
+	handleErr(c.Create("foo", "hash:mac", 0, 0))
 }

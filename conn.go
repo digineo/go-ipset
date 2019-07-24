@@ -6,13 +6,13 @@ import (
 )
 
 // Conn represents a Netlink connection to the Netfilter
-// subsystem and implements all Conntrack actions.
+// subsystem and implements all Ipset actions.
 type Conn struct {
 	Conn *netfilter.Conn
 }
 
 // Dial opens a new Netfilter Netlink connection and returns it
-// wrapped in a Conn structure that implements the Conntrack API.
+// wrapped in a Conn structure that implements the Ipset API.
 func Dial(config *netlink.Config) (*Conn, error) {
 	c, err := netfilter.Dial(config)
 	if err != nil {
@@ -50,4 +50,15 @@ func (c *Conn) Protocol() (*Set, error) {
 	}
 
 	return s[0], nil
+}
+
+func (c *Conn) Create(sname, stype string, revision, family int) error {
+	_, err := c.query(CmdCreate, netlink.Request|netlink.Acknowledge, NewSet(
+		SetName([]byte(sname)),
+		SetTypeName([]byte(stype)),
+		SetRevision(uint8(revision)),
+		SetFamily(uint8(family)),
+		SetData(&Data{})))
+
+	return err
 }

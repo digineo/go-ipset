@@ -24,6 +24,9 @@ type Set struct {
 	// Flags at command level
 	Flags *UInt8Box
 
+	// Nested attributes
+	Data *Data
+
 	// Restore lineno
 	LineNo *UInt32Box
 
@@ -41,6 +44,7 @@ func SetFamily(v uint8) SetOption      { return func(s *Set) { s.Family = NewUIn
 func SetFlags(v uint8) SetOption       { return func(s *Set) { s.Flags = NewUInt8Box(v) } }
 func SetLineNo(v uint32) SetOption     { return func(s *Set) { s.LineNo = NewUInt32Box(v) } }
 func SetProtocolMin(v uint8) SetOption { return func(s *Set) { s.ProtocolMin = NewUInt8Box(v) } }
+func SetData(d *Data) SetOption        { return func(s *Set) { s.Data = d } }
 
 func NewSet(setters ...SetOption) *Set {
 	s := &Set{}
@@ -114,6 +118,10 @@ func (s *Set) marshal() (attrs []netfilter.Attribute) {
 
 	if s.Flags != nil {
 		attrs = append(attrs, s.Flags.marshal(SetAttrFlags))
+	}
+
+	if s.Data != nil {
+		attrs = append(attrs, s.Data.marshal(SetAttrFlags))
 	}
 
 	if s.LineNo != nil {

@@ -65,3 +65,15 @@ func (b *BytesBox) Get() []byte {
 	}
 	return []byte{}
 }
+
+type NetUInt32Box struct{ UInt32Box }
+
+func (b *NetUInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa = netfilter.Attribute{
+		Type:         uint16(t),
+		NetByteOrder: true,
+	}
+	nfa.PutUint32(b.Value)
+
+	return
+}
