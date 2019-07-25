@@ -23,12 +23,11 @@ func main() {
 	fmt.Printf("Protocol:%d Min:%d\n", s.Protocol.Get(), s.ProtocolMin.Get())
 	fmt.Printf("%+v\n", s)
 
-	s, err = c.Protocol()
-	handleErr(err)
-	fmt.Printf("Protocol:%d Min:%d\n", s.Protocol.Get(), s.ProtocolMin.Get())
-	fmt.Printf("%+v\n", s)
-
 	handleErr(c.Create("foo", "hash:mac", 0, 0))
 
-	handleErr(c.Destroy("foo"))
+	handleErr(c.Flush("foo"))
+
+	handleErr(c.Rename("foo", "bar"))
+
+	handleErr(c.Destroy("bar"))
 }

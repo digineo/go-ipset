@@ -74,3 +74,38 @@ func (c *Conn) Destroy(sname string) error {
 	_, err := c.query(CmdDestroy, netlink.Request|netlink.Acknowledge, s)
 	return err
 }
+
+func (c *Conn) DestroyAll() error {
+	s := NewSet()
+
+	_, err := c.query(CmdDestroy, netlink.Request|netlink.Acknowledge, s)
+	return err
+}
+
+func (c *Conn) Flush(sname string) error {
+	s := NewSet(SetName(sname))
+
+	_, err := c.query(CmdFlush, netlink.Request|netlink.Acknowledge, s)
+	return err
+}
+
+func (c *Conn) FlushAll() error {
+	s := NewSet()
+
+	_, err := c.query(CmdFlush, netlink.Request|netlink.Acknowledge, s)
+	return err
+}
+
+func (c *Conn) Rename(oldname, newname string) error {
+	s := NewSet(SetName(oldname), SetTypeName(newname))
+
+	_, err := c.query(CmdRename, netlink.Request|netlink.Acknowledge, s)
+	return err
+}
+
+func (c *Conn) Swap(left, right string) error {
+	s := NewSet(SetName(left), SetTypeName(right))
+
+	_, err := c.query(CmdSwap, netlink.Request|netlink.Acknowledge, s)
+	return err
+}
