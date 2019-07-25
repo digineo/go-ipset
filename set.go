@@ -10,10 +10,10 @@ type Set struct {
 	Protocol *UInt8Box
 
 	// Name of the set
-	Name *BytesBox
+	Name *StringBox
 
 	// Typename
-	TypeName *BytesBox
+	TypeName *StringBox
 
 	// Settype revision
 	Revision *UInt8Box
@@ -37,8 +37,8 @@ type Set struct {
 type SetOption func(*Set)
 
 func SetProtocol(v uint8) SetOption    { return func(s *Set) { s.Protocol = NewUInt8Box(v) } }
-func SetName(v []byte) SetOption       { return func(s *Set) { s.Name = NewBytesBox(v) } }
-func SetTypeName(v []byte) SetOption   { return func(s *Set) { s.TypeName = NewBytesBox(v) } }
+func SetName(v string) SetOption       { return func(s *Set) { s.Name = NewStringBox(v) } }
+func SetTypeName(v string) SetOption   { return func(s *Set) { s.TypeName = NewStringBox(v) } }
 func SetRevision(v uint8) SetOption    { return func(s *Set) { s.Revision = NewUInt8Box(v) } }
 func SetFamily(v uint8) SetOption      { return func(s *Set) { s.Family = NewUInt8Box(v) } }
 func SetFlags(v uint8) SetOption       { return func(s *Set) { s.Flags = NewUInt8Box(v) } }
@@ -70,9 +70,9 @@ func (s *Set) unmarshal(nlm netlink.Message) error {
 		case SetAttrProtocol:
 			s.set(SetProtocol(attr.Data[0]))
 		case SetAttrSetName:
-			s.set(SetName(attr.Data))
+			s.Name = unmarshalStringBox(attr)
 		case SetAttrTypeName:
-			s.set(SetTypeName(attr.Data))
+			s.TypeName = unmarshalStringBox(attr)
 		case SetAttrRevision:
 			s.set(SetRevision(attr.Data[0]))
 		case SetAttrFamily:

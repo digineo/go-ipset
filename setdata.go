@@ -10,6 +10,25 @@ type Data struct {
 	CadtFlags *NetUInt32Box
 }
 
+type DataOption func(*Data)
+
+func DataTimeout(v uint32) DataOption { return func(d *Data) { d.Timeout = NewNetUInt32Box(v) } }
+func DataCadtFlags(v CadtFlags) DataOption {
+	return func(d *Data) { d.Timeout = NewNetUInt32Box(uint32(v)) }
+}
+
+func NewData(setters ...DataOption) *Data {
+	d := &Data{}
+	for _, setter := range setters {
+		d.set(setter)
+	}
+	return d
+}
+
+func (d *Data) set(setter DataOption) {
+	setter(d)
+}
+
 func (d *Data) marshalFields() (attrs []netfilter.Attribute) {
 	attrs = make([]netfilter.Attribute, 0, SetDataAttrCadtMax)
 

@@ -79,3 +79,15 @@ const (
 	SetDataAttrReferences // 25:
 	SetDataAttrMemSize    // 26:
 )
+
+type CadtFlags uint32
+
+const (
+	Before CadtFlags = 1 << iota
+	PhysDev
+	NoMatch
+	WithCounters
+	WithComment
+	WithForceDdd
+	WithSkbInfo
+)

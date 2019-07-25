@@ -1,6 +1,8 @@
 package ipset
 
 import (
+	"bytes"
+
 	"github.com/ti-mo/netfilter"
 )
 
@@ -42,31 +44,42 @@ func (b *UInt32Box) Get() uint32 {
 	return 0
 }
 
-type BytesBox struct{ Value []byte }
+type StringBox struct{ Value string }
 
-func NewBytesBox(v []byte) (b *BytesBox) {
-	b = &BytesBox{Value: make([]byte, len(v))}
-	copy(b.Value, v)
-	return
+func NewStringBox(v string) (b *StringBox) {
+	return &StringBox{Value: v}
 }
 
-func (b *BytesBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
+func unmarshalStringBox(nfa netfilter.Attribute) *StringBox {
+	data := nfa.Data
+	if pos := bytes.IndexByte(data, 0x00); pos != -1 {
+		data = data[:pos]
+	}
+	return NewStringBox(string(data))
+}
+
+func (b *StringBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	nfa.Type = uint16(t)
 
-	nfa.Data = make([]byte, len(b.Value))
+	// Accommodate for the Null-Byte.
+	nfa.Data = make([]byte, len(b.Value)+1)
 	copy(nfa.Data, b.Value)
 
 	return
 }
 
-func (b *BytesBox) Get() []byte {
+func (b *StringBox) Get() string {
 	if b != nil {
 		return b.Value
 	}
-	return []byte{}
+	return b.Value
 }
 
 type NetUInt32Box struct{ UInt32Box }
+
+func NewNetUInt32Box(v uint32) *NetUInt32Box {
+	return &NetUInt32Box{UInt32Box{Value: v}}
+}
 
 func (b *NetUInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	nfa = netfilter.Attribute{

@@ -22,7 +22,7 @@ func Dial(config *netlink.Config) (*Conn, error) {
 	return &Conn{c}, nil
 }
 
-func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]*Set, error) {
+func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]netlink.Message, error) {
 	req, err := netfilter.MarshalNetlink(
 		netfilter.Header{
 			SubsystemID: netfilter.NFSubsysIPSet,
@@ -35,16 +35,16 @@ func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]*Set, 
 		return nil, err
 	}
 
-	nlm, err := c.Conn.Query(req)
+	return c.Conn.Query(req)
+}
+
+func (c *Conn) Protocol() (*Set, error) {
+	nfattrs, err := c.query(CmdProtocol, netlink.Request, NewSet())
 	if err != nil {
 		return nil, err
 	}
 
-	return unmarshalSets(nlm)
-}
-
-func (c *Conn) Protocol() (*Set, error) {
-	s, err := c.query(CmdProtocol, netlink.Request, NewSet())
+	s, err := unmarshalSets(nfattrs)
 	if err != nil {
 		return nil, err
 	}
@@ -52,13 +52,17 @@ func (c *Conn) Protocol() (*Set, error) {
 	return s[0], nil
 }
 
-func (c *Conn) Create(sname, stype string, revision, family int) error {
-	_, err := c.query(CmdCreate, netlink.Request, NewSet(
-		SetName([]byte(sname)),
-		SetTypeName([]byte(stype)),
-		SetRevision(uint8(revision)),
-		SetFamily(uint8(family)),
-		SetData(&Data{})))
+func (c *Conn) Create(sname, stype string, revision, family uint8, options ...DataOption) error {
+	s := NewSet(
+		SetName(sname),
+		SetTypeName(stype),
+		SetRevision(revision),
+		SetFamily(family),
+		SetData(NewData(options...)),
+	)
 
+	// Asking for an acknowledge here is required or c.query will block forever.
+	// Todo(ags): Handle response in case it is an error.
+	_, err := c.query(CmdCreate, netlink.Request|netlink.Acknowledge|netlink.Create|netlink.Excl, s)
 	return err
 }
