@@ -29,4 +29,6 @@ func main() {
 	fmt.Printf("%+v\n", s)
 
 	handleErr(c.Create("foo", "hash:mac", 0, 0))
+
+	handleErr(c.Destroy("foo"))
 }

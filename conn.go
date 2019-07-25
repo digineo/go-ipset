@@ -52,6 +52,8 @@ func (c *Conn) Protocol() (*Set, error) {
 	return s[0], nil
 }
 
+// Todo(ags): Handle response in case it is an error.
+
 func (c *Conn) Create(sname, stype string, revision, family uint8, options ...DataOption) error {
 	s := NewSet(
 		SetName(sname),
@@ -62,7 +64,13 @@ func (c *Conn) Create(sname, stype string, revision, family uint8, options ...Da
 	)
 
 	// Asking for an acknowledge here is required or c.query will block forever.
-	// Todo(ags): Handle response in case it is an error.
 	_, err := c.query(CmdCreate, netlink.Request|netlink.Acknowledge|netlink.Create|netlink.Excl, s)
+	return err
+}
+
+func (c *Conn) Destroy(sname string) error {
+	s := NewSet(SetName(sname))
+
+	_, err := c.query(CmdDestroy, netlink.Request|netlink.Acknowledge, s)
 	return err
 }
