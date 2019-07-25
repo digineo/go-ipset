@@ -22,12 +22,14 @@ func Dial(config *netlink.Config) (*Conn, error) {
 	return &Conn{c}, nil
 }
 
-func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]netlink.Message, error) {
+func (c *Conn) query(t messageType, flags netlink.HeaderFlags, options ...SetOption) ([]netlink.Message, error) {
+	s := NewSet(options...)
+
 	req, err := netfilter.MarshalNetlink(
 		netfilter.Header{
 			SubsystemID: netfilter.NFSubsysIPSet,
 			MessageType: netfilter.MessageType(t),
-			Flags:       flags,
+			Flags:       netlink.Request | flags,
 		},
 		s.marshal(),
 	)
@@ -38,8 +40,14 @@ func (c *Conn) query(t messageType, flags netlink.HeaderFlags, s *Set) ([]netlin
 	return c.Conn.Query(req)
 }
 
+func (c *Conn) execute(t messageType, flags netlink.HeaderFlags, options ...SetOption) error {
+	// Todo(ags): Handle response in case it is an error.
+	_, err := c.query(t, netlink.Acknowledge|flags, options...)
+	return err
+}
+
 func (c *Conn) Protocol() (*Set, error) {
-	nfattrs, err := c.query(CmdProtocol, netlink.Request, NewSet())
+	nfattrs, err := c.query(CmdProtocol, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -52,60 +60,36 @@ func (c *Conn) Protocol() (*Set, error) {
 	return s[0], nil
 }
 
-// Todo(ags): Handle response in case it is an error.
-
 func (c *Conn) Create(sname, stype string, revision, family uint8, options ...DataOption) error {
-	s := NewSet(
+	return c.execute(CmdCreate, netlink.Create|netlink.Excl,
 		SetName(sname),
 		SetTypeName(stype),
 		SetRevision(revision),
 		SetFamily(family),
 		SetData(NewData(options...)),
 	)
-
-	// Asking for an acknowledge here is required or c.query will block forever.
-	_, err := c.query(CmdCreate, netlink.Request|netlink.Acknowledge|netlink.Create|netlink.Excl, s)
-	return err
 }
 
 func (c *Conn) Destroy(sname string) error {
-	s := NewSet(SetName(sname))
-
-	_, err := c.query(CmdDestroy, netlink.Request|netlink.Acknowledge, s)
-	return err
+	return c.execute(CmdDestroy, 0, SetName(sname))
 }
 
 func (c *Conn) DestroyAll() error {
-	s := NewSet()
-
-	_, err := c.query(CmdDestroy, netlink.Request|netlink.Acknowledge, s)
-	return err
+	return c.execute(CmdDestroy, 0)
 }
 
 func (c *Conn) Flush(sname string) error {
-	s := NewSet(SetName(sname))
-
-	_, err := c.query(CmdFlush, netlink.Request|netlink.Acknowledge, s)
-	return err
+	return c.execute(CmdFlush, 0, SetName(sname))
 }
 
 func (c *Conn) FlushAll() error {
-	s := NewSet()
-
-	_, err := c.query(CmdFlush, netlink.Request|netlink.Acknowledge, s)
-	return err
+	return c.execute(CmdFlush, 0)
 }
 
 func (c *Conn) Rename(oldname, newname string) error {
-	s := NewSet(SetName(oldname), SetTypeName(newname))
-
-	_, err := c.query(CmdRename, netlink.Request|netlink.Acknowledge, s)
-	return err
+	return c.execute(CmdRename, 0, SetName(oldname), SetTypeName(newname))
 }
 
 func (c *Conn) Swap(left, right string) error {
-	s := NewSet(SetName(left), SetTypeName(right))
-
-	_, err := c.query(CmdSwap, netlink.Request|netlink.Acknowledge, s)
-	return err
+	return c.execute(CmdSwap, 0, SetName(left), SetTypeName(right))
 }
