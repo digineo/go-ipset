@@ -25,8 +25,34 @@ func NewData(setters ...DataOption) *Data {
 	return d
 }
 
+func unmarshalData(nfa netfilter.Attribute) *Data {
+	d := &Data{}
+	d.unmarshal(nfa)
+	return d
+}
+
 func (d *Data) set(setter DataOption) {
 	setter(d)
+}
+
+func (d *Data) unmarshal(nfa netfilter.Attribute) {
+	for _, attr := range nfa.Children {
+		switch at := AttributeType(attr.Type); at {
+		case SetDataAttrIP:
+		case SetDataAttrIPTo:
+		case SetDataAttrCidr:
+		case SetDataAttrPort:
+		case SetDataAttrPortTo:
+		case SetDataAttrTimeout:
+			d.Timeout = unmarshalNetUint32Box(attr)
+		case SetDataAttrProto:
+		case SetDataAttrCadtFlags:
+			d.CadtFlags = unmarshalNetUint32Box(attr)
+		case SetDataAttrCadtLineNo:
+		case SetDataAttrMark:
+		case SetDataAttrMarkMask:
+		}
+	}
 }
 
 func (d *Data) marshalFields() (attrs []netfilter.Attribute) {

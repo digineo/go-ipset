@@ -80,7 +80,7 @@ func (s *Set) unmarshal(nlm netlink.Message) error {
 		case SetAttrFlags:
 			s.set(SetFlags(attr.Data[0]))
 		case SetAttrData:
-
+			s.Data = unmarshalData(attr)
 		case SetAttrADT:
 
 		case SetAttrLineNo:

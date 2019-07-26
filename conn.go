@@ -93,3 +93,12 @@ func (c *Conn) Rename(oldName, newName string) error {
 func (c *Conn) Swap(left, right string) error {
 	return c.execute(CmdSwap, 0, SetName(left), SetTypeName(right))
 }
+
+func (c *Conn) List() ([]*Set, error) {
+	nlm, err := c.query(CmdList, netlink.Dump)
+	if err != nil {
+		return nil, err
+	}
+
+	return unmarshalSets(nlm)
+}
