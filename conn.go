@@ -86,8 +86,8 @@ func (c *Conn) FlushAll() error {
 	return c.execute(CmdFlush, 0)
 }
 
-func (c *Conn) Rename(oldname, newname string) error {
-	return c.execute(CmdRename, 0, SetName(oldname), SetTypeName(newname))
+func (c *Conn) Rename(oldName, newName string) error {
+	return c.execute(CmdRename, 0, SetName(oldName), SetTypeName(newName))
 }
 
 func (c *Conn) Swap(left, right string) error {
