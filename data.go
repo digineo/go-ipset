@@ -38,32 +38,32 @@ func (d *Data) set(setter DataOption) {
 func (d *Data) unmarshal(nfa netfilter.Attribute) {
 	for _, attr := range nfa.Children {
 		switch at := AttributeType(attr.Type); at {
-		case SetDataAttrIP:
-		case SetDataAttrIPTo:
-		case SetDataAttrCidr:
-		case SetDataAttrPort:
-		case SetDataAttrPortTo:
-		case SetDataAttrTimeout:
+		case AttrIP:
+		case AttrIPTo:
+		case AttrCidr:
+		case AttrPort:
+		case AttrPortTo:
+		case AttrTimeout:
 			d.Timeout = unmarshalNetUint32Box(attr)
-		case SetDataAttrProto:
-		case SetDataAttrCadtFlags:
+		case AttrProto:
+		case AttrCadtFlags:
 			d.CadtFlags = unmarshalNetUint32Box(attr)
-		case SetDataAttrCadtLineNo:
-		case SetDataAttrMark:
-		case SetDataAttrMarkMask:
+		case AttrCadtLineNo:
+		case AttrMark:
+		case AttrMarkMask:
 		}
 	}
 }
 
 func (d *Data) marshalFields() (attrs []netfilter.Attribute) {
-	attrs = make([]netfilter.Attribute, 0, SetDataAttrCadtMax)
+	attrs = make([]netfilter.Attribute, 0, AttrCadtMax)
 
 	if d.Timeout != nil {
-		attrs = append(attrs, d.Timeout.marshal(SetDataAttrTimeout))
+		attrs = append(attrs, d.Timeout.marshal(AttrTimeout))
 	}
 
 	if d.CadtFlags != nil {
-		attrs = append(attrs, d.CadtFlags.marshal(SetDataAttrCadtFlags))
+		attrs = append(attrs, d.CadtFlags.marshal(AttrCadtFlags))
 	}
 
 	return attrs

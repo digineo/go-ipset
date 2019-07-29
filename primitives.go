@@ -3,6 +3,7 @@ package ipset
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"strconv"
 
 	"github.com/ti-mo/netfilter"
@@ -117,6 +118,43 @@ func (b *UInt32Box) String() string {
 	return strconv.Itoa(int(b.Value))
 }
 
+// Uint64
+type UInt64Box struct{ Value uint64 }
+
+func NewUInt64Box(v uint64) (b *UInt64Box) {
+	return &UInt64Box{Value: v}
+}
+
+func unmarshalUInt64Box(nfa netfilter.Attribute) (b *UInt64Box) {
+	b = NewUInt64Box(0)
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *UInt64Box) unmarshal(nfa netfilter.Attribute) {
+	b.Value = nfa.Uint64()
+}
+
+func (b *UInt64Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa.Type = uint16(t)
+	nfa.PutUint64(b.Value)
+	return
+}
+
+func (b *UInt64Box) Get() uint64 {
+	if b != nil {
+		return b.Value
+	}
+	return 0
+}
+
+func (b *UInt64Box) String() string {
+	if b == nil {
+		return "<nil>"
+	}
+	return strconv.Itoa(int(b.Value))
+}
+
 // Null-Byte terminated string
 type NullStringBox struct{ Value string }
 
@@ -181,4 +219,82 @@ func (b *NetUInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	nfa.PutUint32(b.Value)
 
 	return
+}
+
+// Hardware Address
+type HardwareAddrBox struct{ Value net.HardwareAddr }
+
+func NewHardwareAddrBox(v net.HardwareAddr) (b *HardwareAddrBox) {
+	return &HardwareAddrBox{Value: v}
+}
+
+func unmarshalHardwareAddrBox(nfa netfilter.Attribute) (b *HardwareAddrBox) {
+	b = NewHardwareAddrBox(net.HardwareAddr{})
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *HardwareAddrBox) unmarshal(nfa netfilter.Attribute) {
+	b.Value = make([]byte, len(nfa.Data))
+	copy(b.Value, nfa.Data)
+}
+
+func (b *HardwareAddrBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa.Type = uint16(t)
+
+	nfa.Data = make([]byte, len(b.Value))
+	copy(nfa.Data, b.Value)
+
+	return
+}
+
+func (b *HardwareAddrBox) Get() net.HardwareAddr {
+	if b != nil {
+		return b.Value
+	}
+	return b.Value
+}
+
+// IP Address
+type IPAddrBox struct{ Value net.IP }
+
+func NewIPAddrBox(v net.IP) (b *IPAddrBox) {
+	return &IPAddrBox{Value: v}
+}
+
+func unmarshalIPAddrBox(nfa netfilter.Attribute) (b *IPAddrBox) {
+	b = NewIPAddrBox(net.IP{})
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *IPAddrBox) unmarshal(nfa netfilter.Attribute) {
+	b.Value = make([]byte, len(nfa.Children[0].Data))
+	copy(b.Value, nfa.Data)
+}
+
+func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {
+	nfa := netfilter.Attribute{}
+
+	if b.Value.To4() != nil {
+		nfa.Type = SetAttrIPAddrIPV4
+	} else {
+		nfa.Type = SetAttrIPAddrIPV6
+	}
+
+	nfa.Data = make([]byte, len(b.Value)+1)
+	copy(nfa.Data, b.Value)
+
+	return netfilter.Attribute{
+		Type:     uint16(t),
+		Nested:   true,
+		Children: []netfilter.Attribute{nfa},
+	}
+}
+
+func (b *IPAddrBox) Get() net.IP {
+	if b != nil {
+		return b.Value
+	}
+	return b.Value
 }

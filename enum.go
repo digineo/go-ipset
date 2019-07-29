@@ -28,56 +28,80 @@ const (
 	CmdType     // 13: Get set type
 )
 
+const (
+	_ uint16 = iota
+	SetAttrIPAddrIPV4
+	SetAttrIPAddrIPV6
+)
+
 type AttributeType int
 
 const (
 	_ AttributeType = iota
 	// Attributes at command level
-	SetAttrProtocol    //  1: Protocol version
-	SetAttrSetName     //  2: Name of the set
-	SetAttrTypeName    //  3: Typename
-	SetAttrRevision    //  4: Settype revision
-	SetAttrFamily      //  5: Settype family
-	SetAttrFlags       //  6: Flags at command level
-	SetAttrData        //  7: Nested attributes
-	SetAttrADT         //  8: Multiple data containers
-	SetAttrLineNo      //  9: Restore lineno
-	SetAttrProtocolMin // 10: Minimal supported version number
-	SetAttrMax
+	AttrProtocol    //  1: Protocol version
+	AttrSetName     //  2: Name of the set
+	AttrTypeName    //  3: Typename
+	AttrRevision    //  4: Settype revision
+	AttrFamily      //  5: Settype family
+	AttrFlags       //  6: Flags at command level
+	AttrData        //  7: Nested attributes
+	AttrADT         //  8: Multiple data containers
+	AttrLineNo      //  9: Restore lineno
+	AttrProtocolMin // 10: Minimal supported version number
+	AttrMax
 )
 
 const (
 	_ AttributeType = iota
 	// CADT specific attributes
-	SetDataAttrIP         //  1:
-	SetDataAttrIPTo       //  2:
-	SetDataAttrCidr       //  3:
-	SetDataAttrPort       //  4:
-	SetDataAttrPortTo     //  5:
-	SetDataAttrTimeout    //  6:
-	SetDataAttrProto      //  7:
-	SetDataAttrCadtFlags  //  8:
-	SetDataAttrCadtLineNo //  9:
-	SetDataAttrMark       // 10:
-	SetDataAttrMarkMask   // 11:
-	SetDataAttrCadtMax    = 16
+	AttrIP         //  1:
+	AttrIPTo       //  2:
+	AttrCidr       //  3:
+	AttrPort       //  4:
+	AttrPortTo     //  5:
+	AttrTimeout    //  6:
+	AttrProto      //  7:
+	AttrCadtFlags  //  8:
+	AttrCadtLineNo //  9:
+	AttrMark       // 10:
+	AttrMarkMask   // 11:
+	AttrCadtMax    = 16
 )
 
 const (
-	_ AttributeType = iota + SetDataAttrCadtMax
+	_ AttributeType = iota + AttrCadtMax
 	// Create-only specific attributes.
-	SetDataAttrGc       // 17:
-	SetDataAttrHashSize // 18:
-	SetDataAttrMaxElem  // 19:
-	SetDataAttrNetmask  // 20:
-	SetDataAttrProbes   // 21:
-	SetDataAttrResize   // 22:
-	SetDataAttrSize     // 23:
+	AttrGc       // 17:
+	AttrHashSize // 18:
+	AttrMaxElem  // 19:
+	AttrNetmask  // 20:
+	AttrProbes   // 21:
+	AttrResize   // 22:
+	AttrSize     // 23:
 
 	// Kernel-only
-	SetDataAttrElements   // 24:
-	SetDataAttrReferences // 25:
-	SetDataAttrMemSize    // 26:
+	AttrElements   // 24:
+	AttrReferences // 25:
+	AttrMemSize    // 26:
+)
+
+const (
+	_ AttributeType = iota + AttrCadtMax
+	// ADT specific attributes
+	AttrEther
+	AttrName
+	AttrNameRef
+	AttrIP2
+	AttrCidr2
+	AttrIP2To
+	AttrIface
+	AttrBytes
+	AttrPackets
+	AttrComment
+	AttrSkbMark
+	AttrSkbPrio
+	AttrSkbQueue
 )
 
 type CadtFlags uint32

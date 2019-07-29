@@ -27,6 +27,8 @@ type Set struct {
 	// Nested attributes
 	Data *Data
 
+	Entries []*Entry
+
 	// Restore lineno
 	LineNo *UInt32Box
 
@@ -67,25 +69,25 @@ func (s *Set) unmarshal(nlm netlink.Message) error {
 
 	for _, attr := range nfa {
 		switch at := AttributeType(attr.Type); at {
-		case SetAttrProtocol:
+		case AttrProtocol:
 			s.Protocol = unmarshalUInt8Box(attr)
-		case SetAttrSetName:
+		case AttrSetName:
 			s.Name = unmarshalNullStringBox(attr)
-		case SetAttrTypeName:
+		case AttrTypeName:
 			s.TypeName = unmarshalNullStringBox(attr)
-		case SetAttrRevision:
+		case AttrRevision:
 			s.Revision = unmarshalUInt8Box(attr)
-		case SetAttrFamily:
+		case AttrFamily:
 			s.Family = unmarshalUInt8Box(attr)
-		case SetAttrFlags:
+		case AttrFlags:
 			s.Flags = unmarshalUInt8Box(attr)
-		case SetAttrData:
+		case AttrData:
 			s.Data = unmarshalData(attr)
-		case SetAttrADT:
-
-		case SetAttrLineNo:
+		case AttrADT:
+			s.Entries = unmarshalEntries(attr)
+		case AttrLineNo:
 			s.LineNo = unmarshalUInt32Box(attr)
-		case SetAttrProtocolMin:
+		case AttrProtocolMin:
 			s.ProtocolMin = unmarshalUInt8Box(attr)
 		}
 	}
@@ -94,42 +96,42 @@ func (s *Set) unmarshal(nlm netlink.Message) error {
 }
 
 func (s *Set) marshal() (attrs []netfilter.Attribute) {
-	attrs = make([]netfilter.Attribute, 0, SetAttrMax)
+	attrs = make([]netfilter.Attribute, 0, AttrMax)
 
 	if s.Protocol != nil {
-		attrs = append(attrs, s.Protocol.marshal(SetAttrProtocol))
+		attrs = append(attrs, s.Protocol.marshal(AttrProtocol))
 	}
 
 	if s.Name != nil {
-		attrs = append(attrs, s.Name.marshal(SetAttrSetName))
+		attrs = append(attrs, s.Name.marshal(AttrSetName))
 	}
 
 	if s.TypeName != nil {
-		attrs = append(attrs, s.TypeName.marshal(SetAttrTypeName))
+		attrs = append(attrs, s.TypeName.marshal(AttrTypeName))
 	}
 
 	if s.Revision != nil {
-		attrs = append(attrs, s.Revision.marshal(SetAttrRevision))
+		attrs = append(attrs, s.Revision.marshal(AttrRevision))
 	}
 
 	if s.Family != nil {
-		attrs = append(attrs, s.Family.marshal(SetAttrFamily))
+		attrs = append(attrs, s.Family.marshal(AttrFamily))
 	}
 
 	if s.Flags != nil {
-		attrs = append(attrs, s.Flags.marshal(SetAttrFlags))
+		attrs = append(attrs, s.Flags.marshal(AttrFlags))
 	}
 
 	if s.Data != nil {
-		attrs = append(attrs, s.Data.marshal(SetAttrFlags))
+		attrs = append(attrs, s.Data.marshal(AttrFlags))
 	}
 
 	if s.LineNo != nil {
-		attrs = append(attrs, s.LineNo.marshal(SetAttrLineNo))
+		attrs = append(attrs, s.LineNo.marshal(AttrLineNo))
 	}
 
 	if s.ProtocolMin != nil {
-		attrs = append(attrs, s.ProtocolMin.marshal(SetAttrProtocolMin))
+		attrs = append(attrs, s.ProtocolMin.marshal(AttrProtocolMin))
 	}
 
 	return
