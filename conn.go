@@ -86,12 +86,12 @@ func (c *Conn) FlushAll() error {
 	return c.execute(CmdFlush, 0)
 }
 
-func (c *Conn) Rename(oldName, newName string) error {
-	return c.execute(CmdRename, 0, SetName(oldName), SetTypeName(newName))
+func (c *Conn) Rename(from, to string) error {
+	return c.execute(CmdRename, 0, SetName(from), SetTypeName(to))
 }
 
-func (c *Conn) Swap(left, right string) error {
-	return c.execute(CmdSwap, 0, SetName(left), SetTypeName(right))
+func (c *Conn) Swap(from, to string) error {
+	return c.execute(CmdSwap, 0, SetName(from), SetTypeName(to))
 }
 
 func (c *Conn) List() ([]*Set, error) {
