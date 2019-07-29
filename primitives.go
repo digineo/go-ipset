@@ -43,6 +43,43 @@ func (b *UInt8Box) String() string {
 	return strconv.Itoa(int(b.Value))
 }
 
+// Uint16
+type UInt16Box struct{ Value uint16 }
+
+func NewUInt16Box(v uint16) (b *UInt16Box) {
+	return &UInt16Box{Value: v}
+}
+
+func unmarshalUInt16Box(nfa netfilter.Attribute) (b *UInt16Box) {
+	b = NewUInt16Box(0)
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *UInt16Box) unmarshal(nfa netfilter.Attribute) {
+	b.Value = nfa.Uint16()
+}
+
+func (b *UInt16Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa.Type = uint16(t)
+	nfa.PutUint16(b.Value)
+	return
+}
+
+func (b *UInt16Box) Get() uint16 {
+	if b != nil {
+		return b.Value
+	}
+	return 0
+}
+
+func (b *UInt16Box) String() string {
+	if b == nil {
+		return "<nil>"
+	}
+	return strconv.Itoa(int(b.Value))
+}
+
 // Uint32
 type UInt32Box struct{ Value uint32 }
 
