@@ -8,10 +8,21 @@ import (
 	"github.com/ti-mo/netfilter"
 )
 
+// Uint8
 type UInt8Box struct{ Value uint8 }
 
 func NewUInt8Box(v uint8) (b *UInt8Box) {
 	return &UInt8Box{Value: v}
+}
+
+func unmarshalUInt8Box(nfa netfilter.Attribute) (b *UInt8Box) {
+	b = NewUInt8Box(0)
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *UInt8Box) unmarshal(nfa netfilter.Attribute) {
+	b.Value = nfa.Data[0]
 }
 
 func (b *UInt8Box) marshal(t AttributeType) netfilter.Attribute {
@@ -32,10 +43,21 @@ func (b *UInt8Box) String() string {
 	return strconv.Itoa(int(b.Value))
 }
 
+// Uint32
 type UInt32Box struct{ Value uint32 }
 
 func NewUInt32Box(v uint32) (b *UInt32Box) {
 	return &UInt32Box{Value: v}
+}
+
+func unmarshalUInt32Box(nfa netfilter.Attribute) (b *UInt32Box) {
+	b = NewUInt32Box(0)
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *UInt32Box) unmarshal(nfa netfilter.Attribute) {
+	b.Value = nfa.Uint32()
 }
 
 func (b *UInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
@@ -60,21 +82,28 @@ func (b *UInt32Box) String() string {
 	return strconv.Itoa(int(b.Value))
 }
 
-type StringBox struct{ Value string }
+// Null-Byte terminated string
+type NullStringBox struct{ Value string }
 
-func NewStringBox(v string) (b *StringBox) {
-	return &StringBox{Value: v}
+func NewNullStringBox(v string) (b *NullStringBox) {
+	return &NullStringBox{Value: v}
 }
 
-func unmarshalStringBox(nfa netfilter.Attribute) *StringBox {
+func unmarshalNullStringBox(nfa netfilter.Attribute) (b *NullStringBox) {
+	b = NewNullStringBox("")
+	b.unmarshal(nfa)
+	return
+}
+
+func (b *NullStringBox) unmarshal(nfa netfilter.Attribute) {
 	data := nfa.Data
 	if pos := bytes.IndexByte(data, 0x00); pos != -1 {
 		data = data[:pos]
 	}
-	return NewStringBox(string(data))
+	b.Value = string(data)
 }
 
-func (b *StringBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
+func (b *NullStringBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	nfa.Type = uint16(t)
 
 	// Accommodate for the Null-Byte.
@@ -84,20 +113,21 @@ func (b *StringBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	return
 }
 
-func (b *StringBox) Get() string {
+func (b *NullStringBox) Get() string {
 	if b != nil {
 		return b.Value
 	}
 	return b.Value
 }
 
-func (b *StringBox) String() string {
+func (b *NullStringBox) String() string {
 	if b == nil {
 		return "<nil>"
 	}
 	return fmt.Sprintf("%q", b.Value)
 }
 
+// Uint32 in Network Byte Order
 type NetUInt32Box struct{ UInt32Box }
 
 func NewNetUInt32Box(v uint32) *NetUInt32Box {

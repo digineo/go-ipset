@@ -10,10 +10,10 @@ type Set struct {
 	Protocol *UInt8Box
 
 	// Name of the set
-	Name *StringBox
+	Name *NullStringBox
 
 	// Typename
-	TypeName *StringBox
+	TypeName *NullStringBox
 
 	// Settype revision
 	Revision *UInt8Box
@@ -37,8 +37,8 @@ type Set struct {
 type SetOption func(*Set)
 
 func SetProtocol(v uint8) SetOption    { return func(s *Set) { s.Protocol = NewUInt8Box(v) } }
-func SetName(v string) SetOption       { return func(s *Set) { s.Name = NewStringBox(v) } }
-func SetTypeName(v string) SetOption   { return func(s *Set) { s.TypeName = NewStringBox(v) } }
+func SetName(v string) SetOption       { return func(s *Set) { s.Name = NewNullStringBox(v) } }
+func SetTypeName(v string) SetOption   { return func(s *Set) { s.TypeName = NewNullStringBox(v) } }
 func SetRevision(v uint8) SetOption    { return func(s *Set) { s.Revision = NewUInt8Box(v) } }
 func SetFamily(v uint8) SetOption      { return func(s *Set) { s.Family = NewUInt8Box(v) } }
 func SetFlags(v uint8) SetOption       { return func(s *Set) { s.Flags = NewUInt8Box(v) } }
@@ -68,25 +68,25 @@ func (s *Set) unmarshal(nlm netlink.Message) error {
 	for _, attr := range nfa {
 		switch at := AttributeType(attr.Type); at {
 		case SetAttrProtocol:
-			s.set(SetProtocol(attr.Data[0]))
+			s.Protocol = unmarshalUInt8Box(attr)
 		case SetAttrSetName:
-			s.Name = unmarshalStringBox(attr)
+			s.Name = unmarshalNullStringBox(attr)
 		case SetAttrTypeName:
-			s.TypeName = unmarshalStringBox(attr)
+			s.TypeName = unmarshalNullStringBox(attr)
 		case SetAttrRevision:
-			s.set(SetRevision(attr.Data[0]))
+			s.Revision = unmarshalUInt8Box(attr)
 		case SetAttrFamily:
-			s.set(SetFamily(attr.Data[0]))
+			s.Family = unmarshalUInt8Box(attr)
 		case SetAttrFlags:
-			s.set(SetFlags(attr.Data[0]))
+			s.Flags = unmarshalUInt8Box(attr)
 		case SetAttrData:
 			s.Data = unmarshalData(attr)
 		case SetAttrADT:
 
 		case SetAttrLineNo:
-			s.set(SetLineNo(attr.Uint32()))
+			s.LineNo = unmarshalUInt32Box(attr)
 		case SetAttrProtocolMin:
-			s.set(SetProtocolMin(attr.Data[0]))
+			s.ProtocolMin = unmarshalUInt8Box(attr)
 		}
 	}
 
