@@ -99,9 +99,7 @@ func (b *UInt32Box) unmarshal(nfa netfilter.Attribute) {
 
 func (b *UInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	nfa.Type = uint16(t)
-
 	nfa.PutUint32(b.Value)
-
 	return
 }
 
