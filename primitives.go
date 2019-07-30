@@ -274,16 +274,22 @@ func (b *IPAddrBox) unmarshal(nfa netfilter.Attribute) {
 }
 
 func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {
-	nfa := netfilter.Attribute{}
+	var nfa netfilter.Attribute
 
-	if b.Value.To4() != nil {
-		nfa.Type = SetAttrIPAddrIPV4
+	if p4 := b.Value.To4(); len(p4) == net.IPv4len {
+		nfa = netfilter.Attribute{
+			Type: SetAttrIPAddrIPV4,
+			Data: make([]byte, net.IPv4len),
+		}
+		copy(nfa.Data, p4)
+
 	} else {
-		nfa.Type = SetAttrIPAddrIPV6
+		nfa = netfilter.Attribute{
+			Type: SetAttrIPAddrIPV6,
+			Data: make([]byte, net.IPv6len),
+		}
+		copy(nfa.Data, b.Value.To16())
 	}
-
-	nfa.Data = make([]byte, len(b.Value)+1)
-	copy(nfa.Data, b.Value)
 
 	return netfilter.Attribute{
 		Type:     uint16(t),
