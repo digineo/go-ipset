@@ -1,8 +1,6 @@
 package ipset
 
 import (
-	"encoding/json"
-
 	"github.com/ti-mo/netfilter"
 )
 
@@ -91,9 +89,4 @@ func (e *Entry) unmarshal(nfa netfilter.Attribute) {
 			e.Timeout = unmarshalUInt32Box(attr)
 		}
 	}
-}
-
-func (e *Entry) String() string {
-	res2B, _ := json.Marshal(e)
-	return string(res2B)
 }

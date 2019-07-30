@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -17,6 +18,10 @@ func handleErr(err error) {
 func printSets(sets []*ipset.Set) {
 	for _, s := range sets {
 		fmt.Printf("%+v\n", s)
+		for _, e := range s.Entries {
+			res2B, _ := json.Marshal(e)
+			fmt.Println(string(res2B))
+		}
 	}
 }
 
