@@ -270,7 +270,7 @@ func unmarshalIPAddrBox(nfa netfilter.Attribute) (b *IPAddrBox) {
 
 func (b *IPAddrBox) unmarshal(nfa netfilter.Attribute) {
 	b.Value = make([]byte, len(nfa.Children[0].Data))
-	copy(b.Value, nfa.Data)
+	copy(b.Value, nfa.Children[0].Data)
 }
 
 func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {
