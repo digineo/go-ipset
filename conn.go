@@ -5,10 +5,14 @@ import (
 	"github.com/ti-mo/netfilter"
 )
 
+type connector interface {
+	Query(nlm netlink.Message) ([]netlink.Message, error)
+}
+
 // Conn represents a Netlink connection to the Netfilter
 // subsystem and implements all Ipset actions.
 type Conn struct {
-	Conn *netfilter.Conn
+	Conn connector
 }
 
 // Dial opens a new Netfilter Netlink connection and returns it
@@ -31,7 +35,7 @@ func (c *Conn) query(t messageType, flags netlink.HeaderFlags, options ...SetOpt
 			MessageType: netfilter.MessageType(t),
 			Flags:       netlink.Request | flags,
 		},
-		s.marshal(),
+		s.marshalFields(),
 	)
 	if err != nil {
 		return nil, err
@@ -101,4 +105,8 @@ func (c *Conn) List() ([]*Set, error) {
 	}
 
 	return unmarshalSets(nlm)
+}
+
+func (c *Conn) Add(name string, entries ...Entry) error {
+	return c.execute(CmdAdd, 0, SetName(name), SetEntries(entries))
 }

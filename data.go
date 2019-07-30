@@ -55,24 +55,19 @@ func (d *Data) unmarshal(nfa netfilter.Attribute) {
 	}
 }
 
-func (d *Data) marshalFields() (attrs []netfilter.Attribute) {
-	attrs = make([]netfilter.Attribute, 0, AttrCadtMax)
-
-	if d.Timeout != nil {
-		attrs = append(attrs, d.Timeout.marshal(AttrTimeout))
-	}
-
-	if d.CadtFlags != nil {
-		attrs = append(attrs, d.CadtFlags.marshal(AttrCadtFlags))
-	}
-
-	return attrs
+func (d *Data) ok() bool {
+	return d != nil
 }
 
 func (d *Data) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	attrs := make([]netfilter.Attribute, 0, AttrCadtMax)
+
+	attrs = appendAttribute(attrs, AttrTimeout, d.Timeout)
+	attrs = appendAttribute(attrs, AttrCadtFlags, d.CadtFlags)
+
 	return netfilter.Attribute{
 		Type:     uint16(t),
 		Nested:   true,
-		Children: d.marshalFields(),
+		Children: attrs,
 	}
 }

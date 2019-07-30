@@ -25,9 +25,8 @@ type Set struct {
 	Flags *UInt8Box
 
 	// Nested attributes
-	Data *Data
-
-	Entries []*Entry
+	Data    *Data
+	Entries Entries
 
 	// Restore lineno
 	LineNo *UInt32Box
@@ -46,6 +45,7 @@ func SetFamily(v uint8) SetOption      { return func(s *Set) { s.Family = NewUIn
 func SetFlags(v uint8) SetOption       { return func(s *Set) { s.Flags = NewUInt8Box(v) } }
 func SetLineNo(v uint32) SetOption     { return func(s *Set) { s.LineNo = NewUInt32Box(v) } }
 func SetProtocolMin(v uint8) SetOption { return func(s *Set) { s.ProtocolMin = NewUInt8Box(v) } }
+func SetEntries(v []Entry) SetOption   { return func(s *Set) { s.Entries = v } }
 func SetData(d *Data) SetOption        { return func(s *Set) { s.Data = d } }
 
 func NewSet(setters ...SetOption) *Set {
@@ -95,46 +95,19 @@ func (s *Set) unmarshal(nlm netlink.Message) error {
 	return nil
 }
 
-func (s *Set) marshal() (attrs []netfilter.Attribute) {
-	attrs = make([]netfilter.Attribute, 0, AttrMax)
-
-	if s.Protocol != nil {
-		attrs = append(attrs, s.Protocol.marshal(AttrProtocol))
-	}
-
-	if s.Name != nil {
-		attrs = append(attrs, s.Name.marshal(AttrSetName))
-	}
-
-	if s.TypeName != nil {
-		attrs = append(attrs, s.TypeName.marshal(AttrTypeName))
-	}
-
-	if s.Revision != nil {
-		attrs = append(attrs, s.Revision.marshal(AttrRevision))
-	}
-
-	if s.Family != nil {
-		attrs = append(attrs, s.Family.marshal(AttrFamily))
-	}
-
-	if s.Flags != nil {
-		attrs = append(attrs, s.Flags.marshal(AttrFlags))
-	}
-
-	if s.Data != nil {
-		attrs = append(attrs, s.Data.marshal(AttrFlags))
-	}
-
-	if s.LineNo != nil {
-		attrs = append(attrs, s.LineNo.marshal(AttrLineNo))
-	}
-
-	if s.ProtocolMin != nil {
-		attrs = append(attrs, s.ProtocolMin.marshal(AttrProtocolMin))
-	}
-
-	return
+func (s *Set) marshalFields() []netfilter.Attribute {
+	attrs := make([]netfilter.Attribute, 0, AttrMax)
+	attrs = appendAttribute(attrs, AttrProtocol, s.Protocol)
+	attrs = appendAttribute(attrs, AttrSetName, s.Name)
+	attrs = appendAttribute(attrs, AttrTypeName, s.TypeName)
+	attrs = appendAttribute(attrs, AttrRevision, s.Revision)
+	attrs = appendAttribute(attrs, AttrFamily, s.Family)
+	attrs = appendAttribute(attrs, AttrFlags, s.Flags)
+	attrs = appendAttribute(attrs, AttrData, s.Data)
+	attrs = appendAttribute(attrs, AttrADT, s.Entries)
+	attrs = appendAttribute(attrs, AttrLineNo, s.LineNo)
+	attrs = appendAttribute(attrs, AttrProtocolMin, s.ProtocolMin)
+	return attrs
 }
 
 func unmarshalSet(nlm netlink.Message) (*Set, error) {
