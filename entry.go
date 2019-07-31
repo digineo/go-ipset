@@ -18,7 +18,7 @@ type Entry struct {
 	IP2       *IPAddrBox
 	IPTo      *IPAddrBox
 	IP        *IPAddrBox
-	Lineno    *UInt32Box
+	Lineno    *NetUInt32Box
 	Mark      *UInt32Box
 	Packets   *UInt64Box
 	PortTo    *UInt16Box
@@ -45,7 +45,7 @@ func EntryIP2To(v net.IP) EntryOption    { return func(e *Entry) { e.IP2To = New
 func EntryIP2(v net.IP) EntryOption      { return func(e *Entry) { e.IP2 = NewIPAddrBox(v) } }
 func EntryIPTo(v net.IP) EntryOption     { return func(e *Entry) { e.IPTo = NewIPAddrBox(v) } }
 func EntryIP(v net.IP) EntryOption       { return func(e *Entry) { e.IP = NewIPAddrBox(v) } }
-func EntryLineno(v uint32) EntryOption   { return func(e *Entry) { e.Lineno = NewUInt32Box(v) } }
+func EntryLineno(v uint32) EntryOption   { return func(e *Entry) { e.Lineno = NewNetUInt32Box(v) } }
 func EntryMark(v uint32) EntryOption     { return func(e *Entry) { e.Mark = NewUInt32Box(v) } }
 func EntryPackets(v uint64) EntryOption  { return func(e *Entry) { e.Packets = NewUInt64Box(v) } }
 func EntryPortTo(v uint16) EntryOption   { return func(e *Entry) { e.PortTo = NewUInt16Box(v) } }
@@ -56,28 +56,30 @@ func EntrySkbPrio(v uint32) EntryOption  { return func(e *Entry) { e.Skbprio = N
 func EntrySkbQueue(v uint16) EntryOption { return func(e *Entry) { e.Skbqueue = NewUInt16Box(v) } }
 func EntryTimeout(v uint32) EntryOption  { return func(e *Entry) { e.Timeout = NewUInt32Box(v) } }
 
-func NewEntry(setters ...EntryOption) (e Entry) {
+func NewEntry(setters ...EntryOption) *Entry {
+	e := &Entry{}
 	for _, setter := range setters {
 		e.set(setter)
 	}
-	return
+	return e
 }
 
 func (e *Entry) set(option EntryOption) {
 	option(e)
 }
 
-func (b *Entry) ok() bool {
-	return b != nil
+func (e *Entry) IsSet() bool {
+	return e != nil
 }
 
-func unmarshalEntry(nfa netfilter.Attribute) (e Entry) {
+func unmarshalEntry(nfa netfilter.Attribute) (e *Entry) {
+	e = new(Entry)
 	e.unmarshal(nfa)
 	return e
 }
 
-func unmarshalEntries(nfa netfilter.Attribute) (out []Entry) {
-	out = make([]Entry, 0, len(nfa.Children))
+func unmarshalEntries(nfa netfilter.Attribute) (out []*Entry) {
+	out = make([]*Entry, 0, len(nfa.Children))
 	for i := range nfa.Children {
 		out = append(out, unmarshalEntry(nfa.Children[i]))
 	}
@@ -110,7 +112,7 @@ func (e *Entry) unmarshal(nfa netfilter.Attribute) {
 		case AttrIP:
 			e.IP = unmarshalIPAddrBox(attr)
 		case AttrLineNo:
-			e.Lineno = unmarshalUInt32Box(attr)
+			e.Lineno = unmarshalNetUInt32Box(attr)
 		case AttrMark:
 			e.Mark = unmarshalUInt32Box(attr)
 		case AttrPackets:
@@ -134,28 +136,28 @@ func (e *Entry) unmarshal(nfa netfilter.Attribute) {
 }
 
 func (e *Entry) marshal(t AttributeType) netfilter.Attribute {
-	attrs := make([]netfilter.Attribute, 0, 24)
-	attrs = appendAttribute(attrs, AttrBytes, e.Bytes)
-	attrs = appendAttribute(attrs, AttrCadtFlags, e.CadtFlags)
-	attrs = appendAttribute(attrs, AttrCidr2, e.Cidr2)
-	attrs = appendAttribute(attrs, AttrCidr, e.Cidr)
-	attrs = appendAttribute(attrs, AttrComment, e.Comment)
-	attrs = appendAttribute(attrs, AttrEther, e.Ether)
-	attrs = appendAttribute(attrs, AttrIface, e.Iface)
-	attrs = appendAttribute(attrs, AttrIP2To, e.IP2To)
-	attrs = appendAttribute(attrs, AttrIP2, e.IP2)
-	attrs = appendAttribute(attrs, AttrIPTo, e.IPTo)
-	attrs = appendAttribute(attrs, AttrIP, e.IP)
-	attrs = appendAttribute(attrs, AttrLineNo, e.Lineno)
-	attrs = appendAttribute(attrs, AttrMark, e.Mark)
-	attrs = appendAttribute(attrs, AttrPackets, e.Packets)
-	attrs = appendAttribute(attrs, AttrPortTo, e.PortTo)
-	attrs = appendAttribute(attrs, AttrPort, e.Port)
-	attrs = appendAttribute(attrs, AttrProto, e.Proto)
-	attrs = appendAttribute(attrs, AttrSkbMark, e.Skbmark)
-	attrs = appendAttribute(attrs, AttrSkbPrio, e.Skbprio)
-	attrs = appendAttribute(attrs, AttrSkbQueue, e.Skbqueue)
-	attrs = appendAttribute(attrs, AttrTimeout, e.Timeout)
+	attrs := newAttributes()
+	attrs.append(AttrBytes, e.Bytes)
+	attrs.append(AttrCadtFlags, e.CadtFlags)
+	attrs.append(AttrCidr2, e.Cidr2)
+	attrs.append(AttrCidr, e.Cidr)
+	attrs.append(AttrComment, e.Comment)
+	attrs.append(AttrEther, e.Ether)
+	attrs.append(AttrIface, e.Iface)
+	attrs.append(AttrIP2To, e.IP2To)
+	attrs.append(AttrIP2, e.IP2)
+	attrs.append(AttrIPTo, e.IPTo)
+	attrs.append(AttrIP, e.IP)
+	attrs.append(AttrLineNo, e.Lineno)
+	attrs.append(AttrMark, e.Mark)
+	attrs.append(AttrPackets, e.Packets)
+	attrs.append(AttrPortTo, e.PortTo)
+	attrs.append(AttrPort, e.Port)
+	attrs.append(AttrProto, e.Proto)
+	attrs.append(AttrSkbMark, e.Skbmark)
+	attrs.append(AttrSkbPrio, e.Skbprio)
+	attrs.append(AttrSkbQueue, e.Skbqueue)
+	attrs.append(AttrTimeout, e.Timeout)
 
 	return netfilter.Attribute{
 		Type:     uint16(t),
@@ -164,22 +166,22 @@ func (e *Entry) marshal(t AttributeType) netfilter.Attribute {
 	}
 }
 
-type Entries []Entry
+type Entries []*Entry
 
-func (e Entries) ok() bool {
+func (e Entries) IsSet() bool {
 	return e != nil
 }
 
 func (e Entries) marshal(t AttributeType) netfilter.Attribute {
-	nfa := netfilter.Attribute{
+	children := newAttributes()
+	for i, item := range e {
+		item.set(EntryLineno(uint32(i)))
+		children.append(AttrData, item)
+	}
+
+	return netfilter.Attribute{
 		Type:     uint16(t),
 		Nested:   true,
-		Children: make([]netfilter.Attribute, 0, 24),
+		Children: children,
 	}
-
-	for _, item := range e {
-		nfa.Children = appendAttribute(nfa.Children, AttrData, &item)
-	}
-
-	return nfa
 }

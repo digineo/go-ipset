@@ -22,10 +22,6 @@ func unmarshalUInt8Box(nfa netfilter.Attribute) (b *UInt8Box) {
 	return
 }
 
-func (b *UInt8Box) ok() bool {
-	return b != nil
-}
-
 func (b *UInt8Box) unmarshal(nfa netfilter.Attribute) {
 	b.Value = nfa.Data[0]
 }
@@ -39,6 +35,10 @@ func (b *UInt8Box) Get() uint8 {
 		return b.Value
 	}
 	return 0
+}
+
+func (b *UInt8Box) IsSet() bool {
+	return b != nil
 }
 
 func (b *UInt8Box) String() string {
@@ -61,10 +61,6 @@ func unmarshalUInt16Box(nfa netfilter.Attribute) (b *UInt16Box) {
 	return
 }
 
-func (b *UInt16Box) ok() bool {
-	return b != nil
-}
-
 func (b *UInt16Box) unmarshal(nfa netfilter.Attribute) {
 	b.Value = nfa.Uint16()
 }
@@ -80,6 +76,10 @@ func (b *UInt16Box) Get() uint16 {
 		return b.Value
 	}
 	return 0
+}
+
+func (b *UInt16Box) IsSet() bool {
+	return b != nil
 }
 
 func (b *UInt16Box) String() string {
@@ -102,10 +102,6 @@ func unmarshalUInt32Box(nfa netfilter.Attribute) (b *UInt32Box) {
 	return
 }
 
-func (b *UInt32Box) ok() bool {
-	return b != nil
-}
-
 func (b *UInt32Box) unmarshal(nfa netfilter.Attribute) {
 	b.Value = nfa.Uint32()
 }
@@ -121,6 +117,10 @@ func (b *UInt32Box) Get() uint32 {
 		return b.Value
 	}
 	return 0
+}
+
+func (b *UInt32Box) IsSet() bool {
+	return b != nil
 }
 
 func (b *UInt32Box) String() string {
@@ -143,10 +143,6 @@ func unmarshalUInt64Box(nfa netfilter.Attribute) (b *UInt64Box) {
 	return
 }
 
-func (b *UInt64Box) ok() bool {
-	return b != nil
-}
-
 func (b *UInt64Box) unmarshal(nfa netfilter.Attribute) {
 	b.Value = nfa.Uint64()
 }
@@ -162,6 +158,10 @@ func (b *UInt64Box) Get() uint64 {
 		return b.Value
 	}
 	return 0
+}
+
+func (b *UInt64Box) IsSet() bool {
+	return b != nil
 }
 
 func (b *UInt64Box) String() string {
@@ -182,10 +182,6 @@ func unmarshalNullStringBox(nfa netfilter.Attribute) (b *NullStringBox) {
 	b = NewNullStringBox("")
 	b.unmarshal(nfa)
 	return
-}
-
-func (b *NullStringBox) ok() bool {
-	return b != nil
 }
 
 func (b *NullStringBox) unmarshal(nfa netfilter.Attribute) {
@@ -213,6 +209,10 @@ func (b *NullStringBox) Get() string {
 	return b.Value
 }
 
+func (b *NullStringBox) IsSet() bool {
+	return b != nil
+}
+
 func (b *NullStringBox) String() string {
 	if b == nil {
 		return "<nil>"
@@ -227,12 +227,8 @@ func NewNetUInt32Box(v uint32) *NetUInt32Box {
 	return &NetUInt32Box{UInt32Box{Value: v}}
 }
 
-func unmarshalNetUint32Box(nfa netfilter.Attribute) *NetUInt32Box {
+func unmarshalNetUInt32Box(nfa netfilter.Attribute) *NetUInt32Box {
 	return &NetUInt32Box{UInt32Box{Value: nfa.Uint32()}}
-}
-
-func (b *NetUInt32Box) ok() bool {
-	return b != nil
 }
 
 func (b *NetUInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
@@ -243,6 +239,10 @@ func (b *NetUInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 	nfa.PutUint32(b.Value)
 
 	return
+}
+
+func (b *NetUInt32Box) IsSet() bool {
+	return b != nil
 }
 
 // Hardware Address
@@ -256,10 +256,6 @@ func unmarshalHardwareAddrBox(nfa netfilter.Attribute) (b *HardwareAddrBox) {
 	b = NewHardwareAddrBox(net.HardwareAddr{})
 	b.unmarshal(nfa)
 	return
-}
-
-func (b *HardwareAddrBox) ok() bool {
-	return b != nil
 }
 
 func (b *HardwareAddrBox) unmarshal(nfa netfilter.Attribute) {
@@ -280,6 +276,10 @@ func (b *HardwareAddrBox) Get() net.HardwareAddr {
 	return b.Value
 }
 
+func (b *HardwareAddrBox) IsSet() bool {
+	return b != nil
+}
+
 // IP Address
 type IPAddrBox struct{ Value net.IP }
 
@@ -293,10 +293,6 @@ func unmarshalIPAddrBox(nfa netfilter.Attribute) (b *IPAddrBox) {
 	return
 }
 
-func (b *IPAddrBox) ok() bool {
-	return b != nil
-}
-
 func (b *IPAddrBox) unmarshal(nfa netfilter.Attribute) {
 	b.Value = make([]byte, len(nfa.Children[0].Data))
 	copy(b.Value, nfa.Children[0].Data)
@@ -307,15 +303,17 @@ func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {
 
 	if p4 := b.Value.To4(); len(p4) == net.IPv4len {
 		nfa = netfilter.Attribute{
-			Type: SetAttrIPAddrIPV4,
-			Data: make([]byte, net.IPv4len),
+			Type:         SetAttrIPAddrIPV4,
+			Data:         make([]byte, net.IPv4len),
+			NetByteOrder: true,
 		}
 		copy(nfa.Data, p4)
 
 	} else {
 		nfa = netfilter.Attribute{
-			Type: SetAttrIPAddrIPV6,
-			Data: make([]byte, net.IPv6len),
+			Type:         SetAttrIPAddrIPV6,
+			Data:         make([]byte, net.IPv6len),
+			NetByteOrder: true,
 		}
 		copy(nfa.Data, b.Value.To16())
 	}
@@ -334,15 +332,6 @@ func (b *IPAddrBox) Get() net.IP {
 	return b.Value
 }
 
-type marshaller interface {
-	ok() bool
-
-	marshal(t AttributeType) netfilter.Attribute
-}
-
-func appendAttribute(attrs []netfilter.Attribute, t AttributeType, m marshaller) []netfilter.Attribute {
-	if m.ok() {
-		attrs = append(attrs, m.marshal(t))
-	}
-	return attrs
+func (b *IPAddrBox) IsSet() bool {
+	return b != nil
 }

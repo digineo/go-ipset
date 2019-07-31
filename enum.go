@@ -50,6 +50,9 @@ const (
 	AttrLineNo      //  9: Restore lineno
 	AttrProtocolMin // 10: Minimal supported version number
 	AttrMax
+
+	AttrRevisionMin = AttrProtocolMin
+	AttrSetName2    = AttrTypeName
 )
 
 const (
