@@ -17,13 +17,7 @@ func NewUInt8Box(v uint8) (b *UInt8Box) {
 }
 
 func unmarshalUInt8Box(nfa netfilter.Attribute) (b *UInt8Box) {
-	b = NewUInt8Box(0)
-	b.unmarshal(nfa)
-	return
-}
-
-func (b *UInt8Box) unmarshal(nfa netfilter.Attribute) {
-	b.Value = nfa.Data[0]
+	return &UInt8Box{Value: nfa.Data[0]}
 }
 
 func (b *UInt8Box) marshal(t AttributeType) netfilter.Attribute {
@@ -56,13 +50,7 @@ func NewUInt16Box(v uint16) (b *UInt16Box) {
 }
 
 func unmarshalUInt16Box(nfa netfilter.Attribute) (b *UInt16Box) {
-	b = NewUInt16Box(0)
-	b.unmarshal(nfa)
-	return
-}
-
-func (b *UInt16Box) unmarshal(nfa netfilter.Attribute) {
-	b.Value = nfa.Uint16()
+	return &UInt16Box{Value: nfa.Uint16()}
 }
 
 func (b *UInt16Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
@@ -97,13 +85,7 @@ func NewUInt32Box(v uint32) (b *UInt32Box) {
 }
 
 func unmarshalUInt32Box(nfa netfilter.Attribute) (b *UInt32Box) {
-	b = NewUInt32Box(0)
-	b.unmarshal(nfa)
-	return
-}
-
-func (b *UInt32Box) unmarshal(nfa netfilter.Attribute) {
-	b.Value = nfa.Uint32()
+	return &UInt32Box{Value: nfa.Uint32()}
 }
 
 func (b *UInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
@@ -138,9 +120,7 @@ func NewUInt64Box(v uint64) (b *UInt64Box) {
 }
 
 func unmarshalUInt64Box(nfa netfilter.Attribute) (b *UInt64Box) {
-	b = NewUInt64Box(0)
-	b.unmarshal(nfa)
-	return
+	return &UInt64Box{Value: nfa.Uint64()}
 }
 
 func (b *UInt64Box) unmarshal(nfa netfilter.Attribute) {
@@ -179,17 +159,11 @@ func NewNullStringBox(v string) (b *NullStringBox) {
 }
 
 func unmarshalNullStringBox(nfa netfilter.Attribute) (b *NullStringBox) {
-	b = NewNullStringBox("")
-	b.unmarshal(nfa)
-	return
-}
-
-func (b *NullStringBox) unmarshal(nfa netfilter.Attribute) {
 	data := nfa.Data
 	if pos := bytes.IndexByte(data, 0x00); pos != -1 {
 		data = data[:pos]
 	}
-	b.Value = string(data)
+	return &NullStringBox{Value: string(data)}
 }
 
 func (b *NullStringBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
@@ -253,14 +227,9 @@ func NewHardwareAddrBox(v net.HardwareAddr) (b *HardwareAddrBox) {
 }
 
 func unmarshalHardwareAddrBox(nfa netfilter.Attribute) (b *HardwareAddrBox) {
-	b = NewHardwareAddrBox(net.HardwareAddr{})
-	b.unmarshal(nfa)
-	return
-}
-
-func (b *HardwareAddrBox) unmarshal(nfa netfilter.Attribute) {
-	b.Value = make([]byte, len(nfa.Data))
+	b = &HardwareAddrBox{Value: make([]byte, len(nfa.Data))}
 	copy(b.Value, nfa.Data)
+	return
 }
 
 func (b *HardwareAddrBox) marshal(t AttributeType) netfilter.Attribute {
@@ -288,14 +257,9 @@ func NewIPAddrBox(v net.IP) (b *IPAddrBox) {
 }
 
 func unmarshalIPAddrBox(nfa netfilter.Attribute) (b *IPAddrBox) {
-	b = NewIPAddrBox(net.IP{})
-	b.unmarshal(nfa)
-	return
-}
-
-func (b *IPAddrBox) unmarshal(nfa netfilter.Attribute) {
-	b.Value = make([]byte, len(nfa.Children[0].Data))
+	b = &IPAddrBox{Value: make([]byte, len(nfa.Children[0].Data))}
 	copy(b.Value, nfa.Children[0].Data)
+	return
 }
 
 func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {

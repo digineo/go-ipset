@@ -54,11 +54,3 @@ func (p *TypeResponsePolicy) unmarshalAttribute(nfa netfilter.Attribute) {
 		p.TypePolicy.unmarshalAttribute(nfa)
 	}
 }
-
-func (c *Conn) Type(name string, family netfilter.ProtoFamily) (*TypeResponsePolicy, error) {
-	p := &TypeResponsePolicy{}
-	if err := c.request(CmdType, newTypePolicy(name, family), p); err != nil {
-		return nil, err
-	}
-	return p, nil
-}

@@ -63,6 +63,20 @@ func (c *Conn) execute(t messageType, flags netlink.HeaderFlags, m attributesMar
 	return err
 }
 
+func (c *Conn) Protocol() (*ProtocolResponsePolicy, error) {
+	p := &ProtocolResponsePolicy{}
+	if err := c.request(CmdProtocol, newBasePolicy(), p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
+func (c *Conn) Create(setName, typeName string, revision uint8, family netfilter.ProtoFamily, options ...CreateDataOption) error {
+	return c.execute(CmdCreate, netlink.Create|netlink.Excl, newCreatePolicy(
+		newHeaderPolicy(newNamePolicy(setName), typeName, revision, family),
+		newCreateData(options...)))
+}
+
 func (c *Conn) Destroy(name string) error {
 	return c.execute(CmdDestroy, 0, newNamePolicy(name))
 }
@@ -77,6 +91,14 @@ func (c *Conn) Flush(name string) error {
 
 func (c *Conn) FlushAll() error {
 	return c.execute(CmdFlush, 0, newBasePolicy())
+}
+
+func (c *Conn) Rename(from, to string) error {
+	return c.execute(CmdRename, 0, newMovePolicy(from, to))
+}
+
+func (c *Conn) Swap(from, to string) error {
+	return c.execute(CmdSwap, 0, newMovePolicy(from, to))
 }
 
 func (c *Conn) ListAll() ([]SetPolicy, error) {
@@ -102,4 +124,29 @@ func (c *Conn) Add(name string, entries ...*Entry) error {
 
 func (c *Conn) Delete(name string, entries ...*Entry) error {
 	return c.execute(CmdDel, 0, newEntryPolicy(newNamePolicy(name), 0, entries))
+}
+
+func (c *Conn) Test(name string, options ...EntryOption) error {
+	return c.execute(CmdTest, 0, TestPolicy{
+		NamePolicy: newNamePolicy(name),
+		Entry:      NewEntry(options...),
+	})
+}
+
+func (c *Conn) Header(name string) (p *HeaderPolicy, err error) {
+	// The ipset header command only requires the NamePolicy fields
+	// for a request but will return the full Header policy.
+	p = &HeaderPolicy{}
+	if err := c.request(CmdHeader, newNamePolicy(name), p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
+func (c *Conn) Type(name string, family netfilter.ProtoFamily) (*TypeResponsePolicy, error) {
+	p := &TypeResponsePolicy{}
+	if err := c.request(CmdType, newTypePolicy(name, family), p); err != nil {
+		return nil, err
+	}
+	return p, nil
 }

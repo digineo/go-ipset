@@ -18,11 +18,3 @@ func (p MovePolicy) marshalAttributes() Attributes {
 	attrs.append(AttrSetName2, p.To)
 	return attrs
 }
-
-func (c *Conn) Rename(from, to string) error {
-	return c.execute(CmdRename, 0, newMovePolicy(from, to))
-}
-
-func (c *Conn) Swap(from, to string) error {
-	return c.execute(CmdSwap, 0, newMovePolicy(from, to))
-}

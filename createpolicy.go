@@ -1,7 +1,6 @@
 package ipset
 
 import (
-	"github.com/mdlayher/netlink"
 	"github.com/ti-mo/netfilter"
 )
 
@@ -99,10 +98,4 @@ func (p CreatePolicy) marshalAttributes() Attributes {
 	attrs := p.HeaderPolicy.marshalAttributes()
 	attrs.append(AttrData, p.Data)
 	return attrs
-}
-
-func (c *Conn) Create(setName, typeName string, revision uint8, family netfilter.ProtoFamily, options ...CreateDataOption) error {
-	return c.execute(CmdCreate, netlink.Create|netlink.Excl, newCreatePolicy(
-		newHeaderPolicy(newNamePolicy(setName), typeName, revision, family),
-		newCreateData(options...)))
 }

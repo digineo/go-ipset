@@ -23,11 +23,3 @@ func (p *ProtocolResponsePolicy) unmarshalAttribute(nfa netfilter.Attribute) {
 		p.BasePolicy.unmarshalAttribute(nfa)
 	}
 }
-
-func (c *Conn) Protocol() (*ProtocolResponsePolicy, error) {
-	p := &ProtocolResponsePolicy{}
-	if err := c.request(CmdProtocol, newBasePolicy(), p); err != nil {
-		return nil, err
-	}
-	return p, nil
-}

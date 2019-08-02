@@ -68,70 +68,50 @@ func (e *Entry) set(option EntryOption) {
 	option(e)
 }
 
-func (e *Entry) IsSet() bool {
-	return e != nil
-}
-
-func unmarshalEntry(nfa netfilter.Attribute) (e *Entry) {
-	e = new(Entry)
-	e.unmarshal(nfa)
-	return e
-}
-
-func unmarshalEntries(nfa netfilter.Attribute) (out []*Entry) {
-	out = make([]*Entry, 0, len(nfa.Children))
-	for i := range nfa.Children {
-		out = append(out, unmarshalEntry(nfa.Children[i]))
-	}
-	return
-}
-
-func (e *Entry) unmarshal(nfa netfilter.Attribute) {
-	for _, attr := range nfa.Children {
-		switch at := AttributeType(attr.Type); at {
-		case AttrBytes:
-			e.Bytes = unmarshalUInt64Box(attr)
-		case AttrCadtFlags:
-			e.CadtFlags = unmarshalUInt32Box(attr)
-		case AttrCidr2:
-			e.Cidr2 = unmarshalUInt8Box(attr)
-		case AttrCidr:
-			e.Cidr = unmarshalUInt8Box(attr)
-		case AttrComment:
-			e.Comment = unmarshalNullStringBox(attr)
-		case AttrEther:
-			e.Ether = unmarshalHardwareAddrBox(attr)
-		case AttrIface:
-			e.Iface = unmarshalNullStringBox(attr)
-		case AttrIP2To:
-			e.IP2To = unmarshalIPAddrBox(attr)
-		case AttrIP2:
-			e.IP2 = unmarshalIPAddrBox(attr)
-		case AttrIPTo:
-			e.IPTo = unmarshalIPAddrBox(attr)
-		case AttrIP:
-			e.IP = unmarshalIPAddrBox(attr)
-		case AttrLineNo:
-			e.Lineno = unmarshalNetUInt32Box(attr)
-		case AttrMark:
-			e.Mark = unmarshalUInt32Box(attr)
-		case AttrPackets:
-			e.Packets = unmarshalUInt64Box(attr)
-		case AttrPortTo:
-			e.PortTo = unmarshalUInt16Box(attr)
-		case AttrPort:
-			e.Port = unmarshalUInt16Box(attr)
-		case AttrProto:
-			e.Proto = unmarshalUInt8Box(attr)
-		case AttrSkbMark:
-			e.Skbmark = unmarshalUInt64Box(attr)
-		case AttrSkbPrio:
-			e.Skbprio = unmarshalUInt32Box(attr)
-		case AttrSkbQueue:
-			e.Skbqueue = unmarshalUInt16Box(attr)
-		case AttrTimeout:
-			e.Timeout = unmarshalUInt32Box(attr)
-		}
+func (e *Entry) unmarshalAttribute(nfa netfilter.Attribute) {
+	switch at := AttributeType(nfa.Type); at {
+	case AttrBytes:
+		e.Bytes = unmarshalUInt64Box(nfa)
+	case AttrCadtFlags:
+		e.CadtFlags = unmarshalUInt32Box(nfa)
+	case AttrCidr2:
+		e.Cidr2 = unmarshalUInt8Box(nfa)
+	case AttrCidr:
+		e.Cidr = unmarshalUInt8Box(nfa)
+	case AttrComment:
+		e.Comment = unmarshalNullStringBox(nfa)
+	case AttrEther:
+		e.Ether = unmarshalHardwareAddrBox(nfa)
+	case AttrIface:
+		e.Iface = unmarshalNullStringBox(nfa)
+	case AttrIP2To:
+		e.IP2To = unmarshalIPAddrBox(nfa)
+	case AttrIP2:
+		e.IP2 = unmarshalIPAddrBox(nfa)
+	case AttrIPTo:
+		e.IPTo = unmarshalIPAddrBox(nfa)
+	case AttrIP:
+		e.IP = unmarshalIPAddrBox(nfa)
+	case AttrLineNo:
+		e.Lineno = unmarshalNetUInt32Box(nfa)
+	case AttrMark:
+		e.Mark = unmarshalUInt32Box(nfa)
+	case AttrPackets:
+		e.Packets = unmarshalUInt64Box(nfa)
+	case AttrPortTo:
+		e.PortTo = unmarshalUInt16Box(nfa)
+	case AttrPort:
+		e.Port = unmarshalUInt16Box(nfa)
+	case AttrProto:
+		e.Proto = unmarshalUInt8Box(nfa)
+	case AttrSkbMark:
+		e.Skbmark = unmarshalUInt64Box(nfa)
+	case AttrSkbPrio:
+		e.Skbprio = unmarshalUInt32Box(nfa)
+	case AttrSkbQueue:
+		e.Skbqueue = unmarshalUInt16Box(nfa)
+	case AttrTimeout:
+		e.Timeout = unmarshalUInt32Box(nfa)
 	}
 }
 
@@ -166,7 +146,17 @@ func (e *Entry) marshal(t AttributeType) netfilter.Attribute {
 	}
 }
 
+func (e *Entry) IsSet() bool {
+	return e != nil
+}
+
 type Entries []*Entry
+
+func unmarshalEntries(nfa netfilter.Attribute) Entries {
+	e := make(Entries, 0, len(nfa.Children))
+	e.unmarshalAttribute(nfa)
+	return e
+}
 
 func (e Entries) IsSet() bool {
 	return e != nil
@@ -183,5 +173,14 @@ func (e Entries) marshal(t AttributeType) netfilter.Attribute {
 		Type:     uint16(t),
 		Nested:   true,
 		Children: children,
+	}
+}
+
+func (e *Entries) unmarshalAttribute(nfa netfilter.Attribute) {
+	for i := range nfa.Children {
+		entry := &Entry{}
+		entry.unmarshalAttribute(nfa.Children[i])
+
+		*e = append(*e, entry)
 	}
 }

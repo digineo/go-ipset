@@ -41,13 +41,3 @@ func (p *HeaderPolicy) unmarshalAttribute(nfa netfilter.Attribute) {
 		p.NamePolicy.unmarshalAttribute(nfa)
 	}
 }
-
-func (c *Conn) Header(name string) (p *HeaderPolicy, err error) {
-	// The ipset header command only requires the NamePolicy fields
-	// for a request but will return the full Header policy.
-	p = &HeaderPolicy{}
-	if err := c.request(CmdHeader, newNamePolicy(name), p); err != nil {
-		return nil, err
-	}
-	return p, nil
-}
