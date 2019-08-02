@@ -7,7 +7,7 @@ import (
 type EntryAddDelPolicy struct {
 	NamePolicy
 
-	LineNo *UInt32Box
+	LineNo *NetUInt32Box
 
 	Entries Entries
 }
@@ -15,7 +15,7 @@ type EntryAddDelPolicy struct {
 func newEntryPolicy(p NamePolicy, lineNo uint32, entries Entries) EntryAddDelPolicy {
 	return EntryAddDelPolicy{
 		NamePolicy: p,
-		LineNo:     NewUInt32Box(lineNo),
+		LineNo:     NewNetUInt32Box(lineNo),
 		Entries:    entries,
 	}
 }
@@ -23,7 +23,7 @@ func newEntryPolicy(p NamePolicy, lineNo uint32, entries Entries) EntryAddDelPol
 func (p *EntryAddDelPolicy) unmarshalAttribute(nfa netfilter.Attribute) {
 	switch at := AttributeType(nfa.Type); at {
 	case AttrLineNo:
-		p.LineNo = unmarshalUInt32Box(nfa)
+		p.LineNo = unmarshalNetUInt32Box(nfa)
 	case AttrADT:
 		p.Entries = unmarshalEntries(nfa)
 	default:
@@ -33,7 +33,7 @@ func (p *EntryAddDelPolicy) unmarshalAttribute(nfa netfilter.Attribute) {
 
 func (p EntryAddDelPolicy) marshalAttributes() Attributes {
 	attrs := p.NamePolicy.marshalAttributes()
-	attrs.append(AttrLineNo, p.LineNo)
 	attrs.append(AttrADT, p.Entries)
+	attrs.append(AttrLineNo, p.LineNo)
 	return attrs
 }

@@ -38,6 +38,72 @@ func TestConn_Create(t *testing.T) {
 	m.AssertExpectations(t)
 }
 
+func TestConn_DestroyOne(t *testing.T) {
+	assert2 := assert.New(t)
+
+	m := new(queryMock)
+
+	data := []byte{
+		0x02, 0x00, 0x00, 0x00, 0x05, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x08, 0x00, 0x02, 0x00,
+		0x66, 0x6f, 0x6f, 0x00,
+	}
+	m.On("Query", data).Return([]netlink.Message{}, nil)
+
+	c := Conn{Family: netfilter.ProtoIPv4, Conn: m}
+	assert2.NoError(c.Destroy("foo"))
+
+	m.AssertExpectations(t)
+}
+
+func TestConn_DestroyAll(t *testing.T) {
+	assert2 := assert.New(t)
+
+	m := new(queryMock)
+
+	data := []byte{
+		0x02, 0x00, 0x00, 0x00, 0x05, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00,
+	}
+	m.On("Query", data).Return([]netlink.Message{}, nil)
+
+	c := Conn{Family: netfilter.ProtoIPv4, Conn: m}
+	assert2.NoError(c.DestroyAll())
+
+	m.AssertExpectations(t)
+}
+
+func TestConn_FlushOne(t *testing.T) {
+	assert2 := assert.New(t)
+
+	m := new(queryMock)
+
+	data := []byte{
+		0x02, 0x00, 0x00, 0x00, 0x05, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x08, 0x00, 0x02, 0x00,
+		0x66, 0x6f, 0x6f, 0x00,
+	}
+	m.On("Query", data).Return([]netlink.Message{}, nil)
+
+	c := Conn{Family: netfilter.ProtoIPv4, Conn: m}
+	assert2.NoError(c.Flush("foo"))
+
+	m.AssertExpectations(t)
+}
+
+func TestConn_FlushAll(t *testing.T) {
+	assert2 := assert.New(t)
+
+	m := new(queryMock)
+
+	data := []byte{
+		0x02, 0x00, 0x00, 0x00, 0x05, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00,
+	}
+	m.On("Query", data).Return([]netlink.Message{}, nil)
+
+	c := Conn{Family: netfilter.ProtoIPv4, Conn: m}
+	assert2.NoError(c.FlushAll())
+
+	m.AssertExpectations(t)
+}
+
 func TestConn_Add(t *testing.T) {
 	assert2 := assert.New(t)
 
