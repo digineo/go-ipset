@@ -54,7 +54,7 @@ func (c *Conn) request(t messageType, req attributesMarshaller, res attributeUnm
 		return err
 	}
 
-	return unmarshalAttributes(nlm[0], res)
+	return unmarshalMessage(nlm[0], res)
 }
 
 func (c *Conn) execute(t messageType, flags netlink.HeaderFlags, m attributesMarshaller) error {
@@ -118,7 +118,7 @@ func (c *Conn) ListAll() ([]SetPolicy, error) {
 	sets := make([]SetPolicy, 0)
 	for i, el := range nlm {
 		sets = append(sets, SetPolicy{})
-		if err := unmarshalAttributes(el, &sets[i]); err != nil {
+		if err := unmarshalMessage(el, &sets[i]); err != nil {
 			return nil, err
 		}
 	}

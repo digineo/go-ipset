@@ -64,6 +64,12 @@ func NewEntry(setters ...EntryOption) *Entry {
 	return e
 }
 
+func unmarshalEntry(nfa netfilter.Attribute) *Entry {
+	e := &Entry{}
+	unmarshalAttributes(nfa.Children, e)
+	return e
+}
+
 func (e *Entry) set(option EntryOption) {
 	option(e)
 }
@@ -178,9 +184,6 @@ func (e Entries) marshal(t AttributeType) netfilter.Attribute {
 
 func (e *Entries) unmarshalAttribute(nfa netfilter.Attribute) {
 	for i := range nfa.Children {
-		entry := &Entry{}
-		entry.unmarshalAttribute(nfa.Children[i])
-
-		*e = append(*e, entry)
+		*e = append(*e, unmarshalEntry(nfa.Children[i]))
 	}
 }

@@ -9,16 +9,20 @@ type attributeUnmarshaller interface {
 	unmarshalAttribute(nfa netfilter.Attribute)
 }
 
-func unmarshalAttributes(nlm netlink.Message, u attributeUnmarshaller) error {
+func unmarshalMessage(nlm netlink.Message, u attributeUnmarshaller) error {
 	_, nfa, err := netfilter.UnmarshalNetlink(nlm)
 	if err != nil {
 		return err
 	}
 
+	unmarshalAttributes(nfa, u)
+	return nil
+}
+
+func unmarshalAttributes(nfa []netfilter.Attribute, u attributeUnmarshaller) {
 	for i := range nfa {
 		u.unmarshalAttribute(nfa[i])
 	}
-	return nil
 }
 
 type marshaller interface {

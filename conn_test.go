@@ -280,10 +280,14 @@ func TestConn_List(t *testing.T) {
 		assert2.Equal("hash:mac", p.TypeName.Get())
 		assert2.Len(p.Entries, 3)
 
+		assert2.Equal(net.HardwareAddr{0x01, 0x23, 0x45, 0x67, 0x89, 0xaf}, p.Entries[0].Ether.Get())
+
 		p = &res[2]
 		assert2.Equal("baz", p.Name.Get())
 		assert2.Equal("hash:ip", p.TypeName.Get())
 		assert2.Len(p.Entries, 3)
+
+		assert2.Equal(net.IP{192, 168, 8, 3}, p.Entries[0].IP.Get())
 	}
 
 	m.AssertExpectations(t)
