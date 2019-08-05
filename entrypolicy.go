@@ -1,9 +1,5 @@
 package ipset
 
-import (
-	"github.com/ti-mo/netfilter"
-)
-
 type EntryAddDelPolicy struct {
 	NamePolicy
 
@@ -17,17 +13,6 @@ func newEntryPolicy(p NamePolicy, lineNo uint32, entries Entries) EntryAddDelPol
 		NamePolicy: p,
 		LineNo:     NewNetUInt32Box(lineNo),
 		Entries:    entries,
-	}
-}
-
-func (p *EntryAddDelPolicy) unmarshalAttribute(nfa netfilter.Attribute) {
-	switch at := AttributeType(nfa.Type); at {
-	case AttrLineNo:
-		p.LineNo = unmarshalNetUInt32Box(nfa)
-	case AttrADT:
-		p.Entries = unmarshalEntries(nfa)
-	default:
-		p.NamePolicy.unmarshalAttribute(nfa)
 	}
 }
 
