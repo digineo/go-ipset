@@ -11,11 +11,11 @@ import (
 // Uint8
 type UInt8Box struct{ Value uint8 }
 
-func NewUInt8Box(v uint8) (b *UInt8Box) {
+func NewUInt8Box(v uint8) *UInt8Box {
 	return &UInt8Box{Value: v}
 }
 
-func unmarshalUInt8Box(nfa netfilter.Attribute) (b *UInt8Box) {
+func unmarshalUInt8Box(nfa netfilter.Attribute) *UInt8Box {
 	return &UInt8Box{Value: nfa.Data[0]}
 }
 
@@ -44,11 +44,11 @@ func (b *UInt8Box) String() string {
 // Uint16
 type UInt16Box struct{ Value uint16 }
 
-func NewUInt16Box(v uint16) (b *UInt16Box) {
+func NewUInt16Box(v uint16) *UInt16Box {
 	return &UInt16Box{Value: v}
 }
 
-func unmarshalUInt16Box(nfa netfilter.Attribute) (b *UInt16Box) {
+func unmarshalUInt16Box(nfa netfilter.Attribute) *UInt16Box {
 	return &UInt16Box{Value: nfa.Uint16()}
 }
 
@@ -79,11 +79,11 @@ func (b *UInt16Box) String() string {
 // Uint32
 type UInt32Box struct{ Value uint32 }
 
-func NewUInt32Box(v uint32) (b *UInt32Box) {
+func NewUInt32Box(v uint32) *UInt32Box {
 	return &UInt32Box{Value: v}
 }
 
-func unmarshalUInt32Box(nfa netfilter.Attribute) (b *UInt32Box) {
+func unmarshalUInt32Box(nfa netfilter.Attribute) *UInt32Box {
 	return &UInt32Box{Value: nfa.Uint32()}
 }
 
@@ -114,11 +114,11 @@ func (b *UInt32Box) String() string {
 // Uint64
 type UInt64Box struct{ Value uint64 }
 
-func NewUInt64Box(v uint64) (b *UInt64Box) {
+func NewUInt64Box(v uint64) *UInt64Box {
 	return &UInt64Box{Value: v}
 }
 
-func unmarshalUInt64Box(nfa netfilter.Attribute) (b *UInt64Box) {
+func unmarshalUInt64Box(nfa netfilter.Attribute) *UInt64Box {
 	return &UInt64Box{Value: nfa.Uint64()}
 }
 
@@ -153,11 +153,11 @@ func (b *UInt64Box) String() string {
 // Null-Byte terminated string
 type NullStringBox struct{ Value string }
 
-func NewNullStringBox(v string) (b *NullStringBox) {
+func NewNullStringBox(v string) *NullStringBox {
 	return &NullStringBox{Value: v}
 }
 
-func unmarshalNullStringBox(nfa netfilter.Attribute) (b *NullStringBox) {
+func unmarshalNullStringBox(nfa netfilter.Attribute) *NullStringBox {
 	data := nfa.Data
 	if pos := bytes.IndexByte(data, 0x00); pos != -1 {
 		data = data[:pos]
@@ -218,14 +218,14 @@ func (b *NetUInt32Box) IsSet() bool {
 // Hardware Address
 type HardwareAddrBox struct{ Value net.HardwareAddr }
 
-func NewHardwareAddrBox(v net.HardwareAddr) (b *HardwareAddrBox) {
+func NewHardwareAddrBox(v net.HardwareAddr) *HardwareAddrBox {
 	return &HardwareAddrBox{Value: v}
 }
 
-func unmarshalHardwareAddrBox(nfa netfilter.Attribute) (b *HardwareAddrBox) {
-	b = &HardwareAddrBox{Value: make([]byte, len(nfa.Data))}
+func unmarshalHardwareAddrBox(nfa netfilter.Attribute) *HardwareAddrBox {
+	b := &HardwareAddrBox{Value: make([]byte, len(nfa.Data))}
 	copy(b.Value, nfa.Data)
-	return
+	return b
 }
 
 func (b *HardwareAddrBox) marshal(t AttributeType) netfilter.Attribute {
@@ -248,14 +248,14 @@ func (b *HardwareAddrBox) IsSet() bool {
 // IP Address
 type IPAddrBox struct{ Value net.IP }
 
-func NewIPAddrBox(v net.IP) (b *IPAddrBox) {
+func NewIPAddrBox(v net.IP) *IPAddrBox {
 	return &IPAddrBox{Value: v}
 }
 
-func unmarshalIPAddrBox(nfa netfilter.Attribute) (b *IPAddrBox) {
-	b = &IPAddrBox{Value: make([]byte, len(nfa.Children[0].Data))}
+func unmarshalIPAddrBox(nfa netfilter.Attribute) *IPAddrBox {
+	b := &IPAddrBox{Value: make([]byte, len(nfa.Children[0].Data))}
 	copy(b.Value, nfa.Children[0].Data)
-	return
+	return b
 }
 
 func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {
