@@ -2,7 +2,6 @@ package ipset
 
 import (
 	"bytes"
-	"fmt"
 	"net"
 	"strconv"
 
@@ -60,10 +59,10 @@ func (b *UInt16Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 }
 
 func (b *UInt16Box) Get() uint16 {
-	if b != nil {
-		return b.Value
+	if b == nil {
+		return 0
 	}
-	return 0
+	return b.Value
 }
 
 func (b *UInt16Box) IsSet() bool {
@@ -95,10 +94,10 @@ func (b *UInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 }
 
 func (b *UInt32Box) Get() uint32 {
-	if b != nil {
-		return b.Value
+	if b == nil {
+		return 0
 	}
-	return 0
+	return b.Value
 }
 
 func (b *UInt32Box) IsSet() bool {
@@ -134,10 +133,10 @@ func (b *UInt64Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 }
 
 func (b *UInt64Box) Get() uint64 {
-	if b != nil {
-		return b.Value
+	if b == nil {
+		return 0
 	}
-	return 0
+	return b.Value
 }
 
 func (b *UInt64Box) IsSet() bool {
@@ -177,8 +176,8 @@ func (b *NullStringBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
 }
 
 func (b *NullStringBox) Get() string {
-	if b != nil {
-		return b.Value
+	if b == nil {
+		return "<nil>"
 	}
 	return b.Value
 }
@@ -188,10 +187,7 @@ func (b *NullStringBox) IsSet() bool {
 }
 
 func (b *NullStringBox) String() string {
-	if b == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("%q", b.Value)
+	return b.Get()
 }
 
 // Uint32 in Network Byte Order
@@ -239,8 +235,8 @@ func (b *HardwareAddrBox) marshal(t AttributeType) netfilter.Attribute {
 }
 
 func (b *HardwareAddrBox) Get() net.HardwareAddr {
-	if b != nil {
-		return b.Value
+	if b == nil {
+		return nil
 	}
 	return b.Value
 }
@@ -290,8 +286,8 @@ func (b *IPAddrBox) marshal(t AttributeType) netfilter.Attribute {
 }
 
 func (b *IPAddrBox) Get() net.IP {
-	if b != nil {
-		return b.Value
+	if b == nil {
+		return nil
 	}
 	return b.Value
 }
