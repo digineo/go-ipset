@@ -1,11 +1,15 @@
 package ipset
 
 import (
+	"io"
+
 	"github.com/mdlayher/netlink"
 	"github.com/ti-mo/netfilter"
 )
 
 type connector interface {
+	io.Closer
+
 	Query(nlm netlink.Message) ([]netlink.Message, error)
 }
 
@@ -25,6 +29,10 @@ func Dial(family netfilter.ProtoFamily, config *netlink.Config) (*Conn, error) {
 	}
 
 	return &Conn{Family: family, Conn: c}, nil
+}
+
+func (c *Conn) Close() error {
+	return c.Conn.Close()
 }
 
 type attributesMarshaller interface {

@@ -15,6 +15,10 @@ type queryMock struct {
 	mock.Mock
 }
 
+func (q queryMock) Close() error {
+	return nil
+}
+
 func (q queryMock) Query(nlm netlink.Message) ([]netlink.Message, error) {
 	args := q.Called(nlm.Data)
 	return args.Get(0).([]netlink.Message), args.Error(1)
