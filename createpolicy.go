@@ -14,7 +14,7 @@ type CreateData struct {
 	Proto     *UInt8Box
 	Resize    *UInt8Box
 	Size      *UInt32Box
-	Timeout   *UInt32Box
+	Timeout   *NetUInt32Box
 }
 
 type CreateDataOption func(d *CreateData)
@@ -47,7 +47,7 @@ func CreateDataSize(v uint32) CreateDataOption {
 	return func(d *CreateData) { d.Size = NewUInt32Box(v) }
 }
 func CreateDataTimeout(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.Timeout = NewUInt32Box(v) }
+	return func(d *CreateData) { d.Timeout = NewNetUInt32Box(v) }
 }
 
 func newCreateData(options ...CreateDataOption) *CreateData {
