@@ -71,6 +71,14 @@ func (c *Conn) Protocol() (*ProtocolResponsePolicy, error) {
 	return p, nil
 }
 
+// Replace replaces a given set if it already exists, creating a new one otherwise.
+func (c *Conn) Replace(setName, typeName string, revision uint8, family netfilter.ProtoFamily, options ...CreateDataOption) error {
+	return c.execute(CmdCreate, netlink.Create|netlink.Replace, newCreatePolicy(
+		newHeaderPolicy(newNamePolicy(setName), typeName, revision, family),
+		newCreateData(options...)))
+}
+
+// Create creates a new set, returning an error if the set already exists.
 func (c *Conn) Create(setName, typeName string, revision uint8, family netfilter.ProtoFamily, options ...CreateDataOption) error {
 	return c.execute(CmdCreate, netlink.Create|netlink.Excl, newCreatePolicy(
 		newHeaderPolicy(newNamePolicy(setName), typeName, revision, family),
