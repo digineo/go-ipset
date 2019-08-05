@@ -1,4 +1,4 @@
-module github.com/digineo/ipset
+module github.com/digineo/go-ipset/v2
 
 go 1.12
 
