@@ -2,6 +2,7 @@ package ipset
 
 import (
 	"net"
+	"time"
 
 	"github.com/ti-mo/netfilter"
 )
@@ -27,7 +28,7 @@ type Entry struct {
 	Skbmark   *UInt64Box
 	Skbprio   *UInt32Box
 	Skbqueue  *UInt16Box
-	Timeout   *UInt32Box
+	Timeout   *UInt32SecondsDurationBox
 }
 
 type EntryOption func(*Entry)
@@ -54,7 +55,9 @@ func EntryProto(v uint8) EntryOption     { return func(e *Entry) { e.Proto = New
 func EntrySkbMark(v uint64) EntryOption  { return func(e *Entry) { e.Skbmark = NewUInt64Box(v) } }
 func EntrySkbPrio(v uint32) EntryOption  { return func(e *Entry) { e.Skbprio = NewUInt32Box(v) } }
 func EntrySkbQueue(v uint16) EntryOption { return func(e *Entry) { e.Skbqueue = NewUInt16Box(v) } }
-func EntryTimeout(v uint32) EntryOption  { return func(e *Entry) { e.Timeout = NewUInt32Box(v) } }
+func EntryTimeout(v time.Duration) EntryOption {
+	return func(e *Entry) { e.Timeout = NewUInt32SecondsDurationBox(v) }
+}
 
 func NewEntry(setters ...EntryOption) *Entry {
 	e := &Entry{}
@@ -117,7 +120,7 @@ func (e *Entry) unmarshalAttribute(nfa netfilter.Attribute) {
 	case AttrSkbQueue:
 		e.Skbqueue = unmarshalUInt16Box(nfa)
 	case AttrTimeout:
-		e.Timeout = unmarshalUInt32Box(nfa)
+		e.Timeout = unmarshalUInt32SecondsDurationBox(nfa)
 	}
 }
 

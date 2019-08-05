@@ -1,6 +1,8 @@
 package ipset
 
 import (
+	"time"
+
 	"github.com/ti-mo/netfilter"
 )
 
@@ -14,7 +16,7 @@ type CreateData struct {
 	Proto     *UInt8Box
 	Resize    *UInt8Box
 	Size      *UInt32Box
-	Timeout   *NetUInt32Box
+	Timeout   *UInt32SecondsDurationBox
 }
 
 type CreateDataOption func(d *CreateData)
@@ -46,8 +48,8 @@ func CreateDataResize(v uint8) CreateDataOption {
 func CreateDataSize(v uint32) CreateDataOption {
 	return func(d *CreateData) { d.Size = NewUInt32Box(v) }
 }
-func CreateDataTimeout(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.Timeout = NewNetUInt32Box(v) }
+func CreateDataTimeout(v time.Duration) CreateDataOption {
+	return func(d *CreateData) { d.Timeout = NewUInt32SecondsDurationBox(v) }
 }
 
 func newCreateData(options ...CreateDataOption) *CreateData {

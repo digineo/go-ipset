@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net"
 	"strconv"
+	"time"
 
 	"github.com/ti-mo/netfilter"
 )
@@ -293,5 +294,37 @@ func (b *IPAddrBox) Get() net.IP {
 }
 
 func (b *IPAddrBox) IsSet() bool {
+	return b != nil
+}
+
+// UInt32SecondsDurationBox implements a netlink field that stores a duration in seconds
+// with network byte order and 32bit width.
+type UInt32SecondsDurationBox struct{ time.Duration }
+
+func NewUInt32SecondsDurationBox(d time.Duration) *UInt32SecondsDurationBox {
+	return &UInt32SecondsDurationBox{d}
+}
+
+func unmarshalUInt32SecondsDurationBox(nfa netfilter.Attribute) *UInt32SecondsDurationBox {
+	return &UInt32SecondsDurationBox{time.Duration(nfa.Uint32()) * time.Second}
+}
+
+func (b *UInt32SecondsDurationBox) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa = netfilter.Attribute{
+		Type:         uint16(t),
+		NetByteOrder: true,
+	}
+	nfa.PutUint32(uint32(b.Duration / time.Second))
+	return
+}
+
+func (b *UInt32SecondsDurationBox) Get() time.Duration {
+	if b == nil {
+		return 0
+	}
+	return b.Duration
+}
+
+func (b *UInt32SecondsDurationBox) IsSet() bool {
 	return b != nil
 }
