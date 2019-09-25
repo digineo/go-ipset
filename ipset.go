@@ -95,7 +95,7 @@ func list(setname string) ([]IPSet, error) {
 
 	wg.Add(1)
 	go func() {
-		err := xml.NewDecoder(reader).Decode(&result)
+		xml.NewDecoder(reader).Decode(&result)
 		wg.Done()
 	}()
 
