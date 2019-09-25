@@ -90,13 +90,12 @@ func list(setname string) ([]IPSet, error) {
 
 	var reader *io.PipeReader
 	var result ListResult
-	var err error
 	var wg sync.WaitGroup
 	reader, xmlWriter = io.Pipe()
 
 	wg.Add(1)
 	go func() {
-		err = xml.NewDecoder(reader).Decode(&result)
+		err := xml.NewDecoder(reader).Decode(&result)
 		wg.Done()
 	}()
 
