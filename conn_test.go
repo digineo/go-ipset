@@ -299,7 +299,7 @@ func TestConn_ListAll(t *testing.T) {
 }
 
 func TestConn_ListHeader(t *testing.T) {
-	assert2 := assert.New(t)
+	assert := assert.New(t)
 
 	m := new(queryMock)
 
@@ -308,7 +308,7 @@ func TestConn_ListHeader(t *testing.T) {
 		0x66, 0x6f, 0x6f, 0x00, 0x08, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x04,
 	}
 	m.On("Query", data).Return([]netlink.Message{
-		{Data : []byte{
+		{Data: []byte{
 			0x02, 0x00, 0x00, 0x00, 0x05, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x08, 0x00, 0x02, 0x00,
 			0x66, 0x6f, 0x6f, 0x00, 0x0c, 0x00, 0x03, 0x00, 0x68, 0x61, 0x73, 0x68, 0x3a, 0x69, 0x70, 0x00,
 			0x05, 0x00, 0x05, 0x00, 0x02, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x00,
@@ -322,16 +322,16 @@ func TestConn_ListHeader(t *testing.T) {
 	c := Conn{Family: netfilter.ProtoIPv4, Conn: m}
 
 	res, err := c.ListHeader("foo")
-	if assert2.NoError(err) {
-		assert2.Equal("foo", res.Name.Get())
-		assert2.Equal("hash:ip", res.TypeName.Get())
-		assert2.Len(res.Entries, 0)
-		assert2.Equal(0, int(res.CreateData.Size.Get()))
-		assert2.Equal(2, int(res.CreateData.Elements.Get()))
-		assert2.Equal(0, int(res.CreateData.References.Get()))
-		assert2.Equal(344, int(res.CreateData.MemSize.Get()))
-		assert2.Equal(WithComment, CadtFlags(res.CreateData.CadtFlags.Get()))
-		assert2.Equal(93*time.Second, res.CreateData.Timeout.Get())
+	if assert.NoError(err) {
+		assert.Equal("foo", res.Name.Get())
+		assert.Equal("hash:ip", res.TypeName.Get())
+		assert.Len(res.Entries, 0)
+		assert.Equal(0, int(res.CreateData.Size.Get()))
+		assert.Equal(2, int(res.CreateData.Elements.Get()))
+		assert.Equal(0, int(res.CreateData.References.Get()))
+		assert.Equal(344, int(res.CreateData.MemSize.Get()))
+		assert.Equal(WithComment, CadtFlags(res.CreateData.CadtFlags.Get()))
+		assert.Equal(93*time.Second, res.CreateData.Timeout.Get())
 	}
 
 	m.AssertExpectations(t)

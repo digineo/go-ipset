@@ -1,7 +1,6 @@
 package ipset
 
 import (
-	"errors"
 	"fmt"
 	"io"
 
@@ -144,7 +143,7 @@ func (c *Conn) ListHeader(name string) (*SetPolicy, error) {
 	}
 
 	if len(nlm) > 1 {
-		return nil, errors.New(fmt.Sprintf("%d more ipset list headers returned than expected", len(nlm)-1))
+		return nil, fmt.Errorf("%d more ipset list headers returned than expected", len(nlm)-1)
 	} else if len(nlm) == 0 {
 		return nil, nil
 	}
