@@ -17,6 +17,11 @@ type CreateData struct {
 	Resize    *UInt8Box
 	Size      *UInt32Box
 	Timeout   *UInt32SecondsDurationBox
+
+	// Kernel only (returned by List*)
+	Elements   *UInt32Box
+	References *UInt32Box
+	MemSize    *UInt32Box
 }
 
 type CreateDataOption func(d *CreateData)
@@ -81,6 +86,41 @@ func (d CreateData) marshal(t AttributeType) netfilter.Attribute {
 		Nested:   true,
 		Children: attrs,
 	}
+}
+
+func unmarshalCreateData(nfaData netfilter.Attribute) *CreateData {
+	d := newCreateData()
+	for _, nfa := range nfaData.Children {
+		switch at := AttributeType(nfa.Type); at {
+		case AttrCadtFlags:
+			d.CadtFlags = unmarshalUInt32Box(nfa)
+		case AttrHashSize:
+			d.HashSize = unmarshalUInt32Box(nfa)
+		case AttrMarkMask:
+			d.MarkMask = unmarshalUInt32Box(nfa)
+		case AttrMaxElem:
+			d.MaxElem = unmarshalUInt32Box(nfa)
+		case AttrNetmask:
+			d.NetMask = unmarshalUInt8Box(nfa)
+		case AttrProbes:
+			d.Probes = unmarshalUInt8Box(nfa)
+		case AttrProto:
+			d.Proto = unmarshalUInt8Box(nfa)
+		case AttrResize:
+			d.Resize = unmarshalUInt8Box(nfa)
+		case AttrSize:
+			d.Size = unmarshalUInt32Box(nfa)
+		case AttrTimeout:
+			d.Timeout = unmarshalUInt32SecondsDurationBox(nfa)
+		case AttrElements:
+			d.Elements = unmarshalUInt32Box(nfa)
+		case AttrReferences:
+			d.References = unmarshalUInt32Box(nfa)
+		case AttrMemSize:
+			d.MemSize = unmarshalUInt32Box(nfa)
+		}
+	}
+	return d
 }
 
 type CreatePolicy struct {

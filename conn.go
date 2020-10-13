@@ -1,6 +1,8 @@
 package ipset
 
 import (
+	"errors"
+	"fmt"
 	"io"
 
 	"github.com/mdlayher/netlink"
@@ -132,6 +134,24 @@ func (c *Conn) ListAll() ([]SetPolicy, error) {
 	}
 
 	return sets, nil
+}
+
+func (c *Conn) ListHeader(name string) (*SetPolicy, error) {
+	namePolicy := newNamePolicy(name)
+	nlm, err := c.query(CmdList, netlink.Dump, newDumpPolicy(&namePolicy, FlagListHeader))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(nlm) > 1 {
+		return nil, errors.New(fmt.Sprintf("%d more ipset list headers returned than expected", len(nlm)-1))
+	} else if len(nlm) == 0 {
+		return nil, nil
+	}
+
+	set := &SetPolicy{}
+	err = unmarshalMessage(nlm[0], set)
+	return set, err
 }
 
 func (c *Conn) Add(name string, entries ...*Entry) error {

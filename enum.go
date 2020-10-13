@@ -118,3 +118,18 @@ const (
 	WithForceDdd
 	WithSkbInfo
 )
+
+type CmdFlags uint32
+
+const (
+	FlagExist CmdFlags = 1 << iota
+	FlagListSetName
+	FlagListHeader
+	FlagSkipCounterUpdate
+	FlagSkipSubcounterUpdate
+	FlagMatchCounters
+	FlagReturnNoMatch
+	FlagMapSkbMark
+	FlagMapSkbPrio
+	FlagMapSkbQueue
+)

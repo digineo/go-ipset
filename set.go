@@ -6,6 +6,7 @@ import (
 
 type SetPolicy struct {
 	HeaderPolicy
+	CreateData *CreateData
 
 	Entries Entries
 }
@@ -18,6 +19,8 @@ func (p *SetPolicy) unmarshalAttribute(nfa netfilter.Attribute) {
 	switch at := AttributeType(nfa.Type); at {
 	case AttrADT:
 		p.Entries = unmarshalEntries(nfa)
+	case AttrData:
+		p.CreateData = unmarshalCreateData(nfa)
 	default:
 		p.HeaderPolicy.unmarshalAttribute(nfa)
 	}
