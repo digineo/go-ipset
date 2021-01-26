@@ -22,8 +22,8 @@ type Entry struct {
 	Lineno    *NetUInt32Box
 	Mark      *UInt32Box
 	Packets   *UInt64Box
-	PortTo    *UInt16Box
-	Port      *UInt16Box
+	PortTo    *NetUInt16Box
+	Port      *NetUInt16Box
 	Proto     *UInt8Box
 	Skbmark   *UInt64Box
 	Skbprio   *UInt32Box
@@ -49,8 +49,8 @@ func EntryIP(v net.IP) EntryOption       { return func(e *Entry) { e.IP = NewIPA
 func EntryLineno(v uint32) EntryOption   { return func(e *Entry) { e.Lineno = NewNetUInt32Box(v) } }
 func EntryMark(v uint32) EntryOption     { return func(e *Entry) { e.Mark = NewUInt32Box(v) } }
 func EntryPackets(v uint64) EntryOption  { return func(e *Entry) { e.Packets = NewUInt64Box(v) } }
-func EntryPortTo(v uint16) EntryOption   { return func(e *Entry) { e.PortTo = NewUInt16Box(v) } }
-func EntryPort(v uint16) EntryOption     { return func(e *Entry) { e.Port = NewUInt16Box(v) } }
+func EntryPortTo(v uint16) EntryOption   { return func(e *Entry) { e.PortTo = NewNetUInt16Box(v) } }
+func EntryPort(v uint16) EntryOption     { return func(e *Entry) { e.Port = NewNetUInt16Box(v) } }
 func EntryProto(v uint8) EntryOption     { return func(e *Entry) { e.Proto = NewUInt8Box(v) } }
 func EntrySkbMark(v uint64) EntryOption  { return func(e *Entry) { e.Skbmark = NewUInt64Box(v) } }
 func EntrySkbPrio(v uint32) EntryOption  { return func(e *Entry) { e.Skbprio = NewUInt32Box(v) } }
@@ -108,9 +108,9 @@ func (e *Entry) unmarshalAttribute(nfa netfilter.Attribute) {
 	case AttrPackets:
 		e.Packets = unmarshalUInt64Box(nfa)
 	case AttrPortTo:
-		e.PortTo = unmarshalUInt16Box(nfa)
+		e.PortTo = unmarshalNetUInt16Box(nfa)
 	case AttrPort:
-		e.Port = unmarshalUInt16Box(nfa)
+		e.Port = unmarshalNetUInt16Box(nfa)
 	case AttrProto:
 		e.Proto = unmarshalUInt8Box(nfa)
 	case AttrSkbMark:
