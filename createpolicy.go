@@ -7,31 +7,31 @@ import (
 )
 
 type CreateData struct {
-	CadtFlags *UInt32Box
-	HashSize  *UInt32Box
-	MarkMask  *UInt32Box
-	MaxElem   *UInt32Box
+	CadtFlags *NetUInt32Box
+	HashSize  *NetUInt32Box
+	MarkMask  *NetUInt32Box
+	MaxElem   *NetUInt32Box
 	NetMask   *UInt8Box
 	Probes    *UInt8Box
 	Proto     *UInt8Box
 	Resize    *UInt8Box
-	Size      *UInt32Box
+	Size      *NetUInt32Box
 	Timeout   *UInt32SecondsDurationBox
 }
 
 type CreateDataOption func(d *CreateData)
 
 func CreateDataCadtFlags(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.CadtFlags = NewUInt32Box(v) }
+	return func(d *CreateData) { d.CadtFlags = NewNetUInt32Box(v) }
 }
 func CreateDataHashSize(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.HashSize = NewUInt32Box(v) }
+	return func(d *CreateData) { d.HashSize = NewNetUInt32Box(v) }
 }
 func CreateDataMarkMask(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.MarkMask = NewUInt32Box(v) }
+	return func(d *CreateData) { d.MarkMask = NewNetUInt32Box(v) }
 }
 func CreateDataMaxElem(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.MaxElem = NewUInt32Box(v) }
+	return func(d *CreateData) { d.MaxElem = NewNetUInt32Box(v) }
 }
 func CreateDataNetMask(v uint8) CreateDataOption {
 	return func(d *CreateData) { d.NetMask = NewUInt8Box(v) }
@@ -46,7 +46,7 @@ func CreateDataResize(v uint8) CreateDataOption {
 	return func(d *CreateData) { d.Resize = NewUInt8Box(v) }
 }
 func CreateDataSize(v uint32) CreateDataOption {
-	return func(d *CreateData) { d.Size = NewUInt32Box(v) }
+	return func(d *CreateData) { d.Size = NewNetUInt32Box(v) }
 }
 func CreateDataTimeout(v time.Duration) CreateDataOption {
 	return func(d *CreateData) { d.Timeout = NewUInt32SecondsDurationBox(v) }

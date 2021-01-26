@@ -241,6 +241,31 @@ func (b *NetUInt32Box) IsSet() bool {
 	return b != nil
 }
 
+// Uint64 in Network Byte Order
+type NetUInt64Box struct{ UInt64Box }
+
+func NewNetUInt64Box(v uint64) *NetUInt64Box {
+	return &NetUInt64Box{UInt64Box{Value: v}}
+}
+
+func unmarshalNetUInt64Box(nfa netfilter.Attribute) *NetUInt64Box {
+	return &NetUInt64Box{UInt64Box{Value: nfa.Uint64()}}
+}
+
+func (b *NetUInt64Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa = netfilter.Attribute{
+		Type:         uint16(t),
+		NetByteOrder: true,
+	}
+	nfa.PutUint64(b.Value)
+
+	return
+}
+
+func (b *NetUInt64Box) IsSet() bool {
+	return b != nil
+}
+
 // Hardware Address
 type HardwareAddrBox struct{ Value net.HardwareAddr }
 

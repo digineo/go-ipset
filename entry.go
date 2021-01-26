@@ -8,8 +8,8 @@ import (
 )
 
 type Entry struct {
-	Bytes     *UInt64Box
-	CadtFlags *UInt32Box
+	Bytes     *NetUInt64Box
+	CadtFlags *NetUInt32Box
 	Cidr2     *UInt8Box
 	Cidr      *UInt8Box
 	Comment   *NullStringBox
@@ -20,21 +20,21 @@ type Entry struct {
 	IPTo      *IPAddrBox
 	IP        *IPAddrBox
 	Lineno    *NetUInt32Box
-	Mark      *UInt32Box
-	Packets   *UInt64Box
+	Mark      *NetUInt32Box
+	Packets   *NetUInt64Box
 	PortTo    *NetUInt16Box
 	Port      *NetUInt16Box
 	Proto     *UInt8Box
-	Skbmark   *UInt64Box
-	Skbprio   *UInt32Box
-	Skbqueue  *UInt16Box
+	Skbmark   *NetUInt64Box
+	Skbprio   *NetUInt32Box
+	Skbqueue  *NetUInt16Box
 	Timeout   *UInt32SecondsDurationBox
 }
 
 type EntryOption func(*Entry)
 
-func EntryBytes(v uint64) EntryOption     { return func(e *Entry) { e.Bytes = NewUInt64Box(v) } }
-func EntryCadtFlags(v uint32) EntryOption { return func(e *Entry) { e.CadtFlags = NewUInt32Box(v) } }
+func EntryBytes(v uint64) EntryOption     { return func(e *Entry) { e.Bytes = NewNetUInt64Box(v) } }
+func EntryCadtFlags(v uint32) EntryOption { return func(e *Entry) { e.CadtFlags = NewNetUInt32Box(v) } }
 func EntryCidr2(v uint8) EntryOption      { return func(e *Entry) { e.Cidr2 = NewUInt8Box(v) } }
 func EntryCidr(v uint8) EntryOption       { return func(e *Entry) { e.Cidr = NewUInt8Box(v) } }
 func EntryComment(v string) EntryOption   { return func(e *Entry) { e.Comment = NewNullStringBox(v) } }
@@ -47,14 +47,14 @@ func EntryIP2(v net.IP) EntryOption      { return func(e *Entry) { e.IP2 = NewIP
 func EntryIPTo(v net.IP) EntryOption     { return func(e *Entry) { e.IPTo = NewIPAddrBox(v) } }
 func EntryIP(v net.IP) EntryOption       { return func(e *Entry) { e.IP = NewIPAddrBox(v) } }
 func EntryLineno(v uint32) EntryOption   { return func(e *Entry) { e.Lineno = NewNetUInt32Box(v) } }
-func EntryMark(v uint32) EntryOption     { return func(e *Entry) { e.Mark = NewUInt32Box(v) } }
-func EntryPackets(v uint64) EntryOption  { return func(e *Entry) { e.Packets = NewUInt64Box(v) } }
+func EntryMark(v uint32) EntryOption     { return func(e *Entry) { e.Mark = NewNetUInt32Box(v) } }
+func EntryPackets(v uint64) EntryOption  { return func(e *Entry) { e.Packets = NewNetUInt64Box(v) } }
 func EntryPortTo(v uint16) EntryOption   { return func(e *Entry) { e.PortTo = NewNetUInt16Box(v) } }
 func EntryPort(v uint16) EntryOption     { return func(e *Entry) { e.Port = NewNetUInt16Box(v) } }
 func EntryProto(v uint8) EntryOption     { return func(e *Entry) { e.Proto = NewUInt8Box(v) } }
-func EntrySkbMark(v uint64) EntryOption  { return func(e *Entry) { e.Skbmark = NewUInt64Box(v) } }
-func EntrySkbPrio(v uint32) EntryOption  { return func(e *Entry) { e.Skbprio = NewUInt32Box(v) } }
-func EntrySkbQueue(v uint16) EntryOption { return func(e *Entry) { e.Skbqueue = NewUInt16Box(v) } }
+func EntrySkbMark(v uint64) EntryOption  { return func(e *Entry) { e.Skbmark = NewNetUInt64Box(v) } }
+func EntrySkbPrio(v uint32) EntryOption  { return func(e *Entry) { e.Skbprio = NewNetUInt32Box(v) } }
+func EntrySkbQueue(v uint16) EntryOption { return func(e *Entry) { e.Skbqueue = NewNetUInt16Box(v) } }
 func EntryTimeout(v time.Duration) EntryOption {
 	return func(e *Entry) { e.Timeout = NewUInt32SecondsDurationBox(v) }
 }
@@ -80,9 +80,9 @@ func (e *Entry) set(option EntryOption) {
 func (e *Entry) unmarshalAttribute(nfa netfilter.Attribute) {
 	switch at := AttributeType(nfa.Type); at {
 	case AttrBytes:
-		e.Bytes = unmarshalUInt64Box(nfa)
+		e.Bytes = unmarshalNetUInt64Box(nfa)
 	case AttrCadtFlags:
-		e.CadtFlags = unmarshalUInt32Box(nfa)
+		e.CadtFlags = unmarshalNetUInt32Box(nfa)
 	case AttrCidr2:
 		e.Cidr2 = unmarshalUInt8Box(nfa)
 	case AttrCidr:
@@ -104,9 +104,9 @@ func (e *Entry) unmarshalAttribute(nfa netfilter.Attribute) {
 	case AttrLineNo:
 		e.Lineno = unmarshalNetUInt32Box(nfa)
 	case AttrMark:
-		e.Mark = unmarshalUInt32Box(nfa)
+		e.Mark = unmarshalNetUInt32Box(nfa)
 	case AttrPackets:
-		e.Packets = unmarshalUInt64Box(nfa)
+		e.Packets = unmarshalNetUInt64Box(nfa)
 	case AttrPortTo:
 		e.PortTo = unmarshalNetUInt16Box(nfa)
 	case AttrPort:
@@ -114,11 +114,11 @@ func (e *Entry) unmarshalAttribute(nfa netfilter.Attribute) {
 	case AttrProto:
 		e.Proto = unmarshalUInt8Box(nfa)
 	case AttrSkbMark:
-		e.Skbmark = unmarshalUInt64Box(nfa)
+		e.Skbmark = unmarshalNetUInt64Box(nfa)
 	case AttrSkbPrio:
-		e.Skbprio = unmarshalUInt32Box(nfa)
+		e.Skbprio = unmarshalNetUInt32Box(nfa)
 	case AttrSkbQueue:
-		e.Skbqueue = unmarshalUInt16Box(nfa)
+		e.Skbqueue = unmarshalNetUInt16Box(nfa)
 	case AttrTimeout:
 		e.Timeout = unmarshalUInt32SecondsDurationBox(nfa)
 	}
