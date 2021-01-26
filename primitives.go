@@ -191,6 +191,31 @@ func (b *NullStringBox) String() string {
 	return b.Get()
 }
 
+// Uint16 in Network Byte Order
+type NetUInt16Box struct{ UInt16Box }
+
+func NewNetUInt16Box(v uint16) *NetUInt16Box {
+	return &NetUInt16Box{UInt16Box{Value: v}}
+}
+
+func unmarshalNetUInt16Box(nfa netfilter.Attribute) *NetUInt16Box {
+	return &NetUInt16Box{UInt16Box{Value: nfa.Uint16()}}
+}
+
+func (b *NetUInt16Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa = netfilter.Attribute{
+		Type:         uint16(t),
+		NetByteOrder: true,
+	}
+	nfa.PutUint16(b.Value)
+
+	return
+}
+
+func (b *NetUInt16Box) IsSet() bool {
+	return b != nil
+}
+
 // Uint32 in Network Byte Order
 type NetUInt32Box struct{ UInt32Box }
 
@@ -213,6 +238,31 @@ func (b *NetUInt32Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
 }
 
 func (b *NetUInt32Box) IsSet() bool {
+	return b != nil
+}
+
+// Uint64 in Network Byte Order
+type NetUInt64Box struct{ UInt64Box }
+
+func NewNetUInt64Box(v uint64) *NetUInt64Box {
+	return &NetUInt64Box{UInt64Box{Value: v}}
+}
+
+func unmarshalNetUInt64Box(nfa netfilter.Attribute) *NetUInt64Box {
+	return &NetUInt64Box{UInt64Box{Value: nfa.Uint64()}}
+}
+
+func (b *NetUInt64Box) marshal(t AttributeType) (nfa netfilter.Attribute) {
+	nfa = netfilter.Attribute{
+		Type:         uint16(t),
+		NetByteOrder: true,
+	}
+	nfa.PutUint64(b.Value)
+
+	return
+}
+
+func (b *NetUInt64Box) IsSet() bool {
 	return b != nil
 }
 
